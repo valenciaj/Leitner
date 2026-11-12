@@ -266,4 +266,13 @@
     <string name="practice">🎯 Practice</string>
     <string name="practice_title">Practice</string>
     <string name="practice_note">This was practice: boxes and statistics stay the same.</string>
+    <string name="share_deck">📤 Share deck</string>
+    <string name="share_deck_chooser">Share deck</string>
+    <string name="share_deck_failed">Could not prepare the deck for sharing</string>
+    <string name="import_deck">📥 Import deck</string>
+    <plurals name="msg_deck_imported">
+        <item quantity="one">Deck “%1$s” imported: %2$d card</item>
+        <item quantity="other">Deck “%1$s” imported: %2$d cards</item>
+    </plurals>
+    <string name="msg_not_a_deck">That file is not a shared Leitner deck</string>
 </resources>

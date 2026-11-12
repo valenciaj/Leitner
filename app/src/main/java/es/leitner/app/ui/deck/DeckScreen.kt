@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.leitner.app.R
 import es.leitner.app.data.CardEntity
+import es.leitner.app.data.DeckShare
 import es.leitner.app.data.MediaStorage
 import es.leitner.app.data.content
 import es.leitner.app.ui.common.CardEditDialog
@@ -58,6 +59,7 @@ import es.leitner.app.ui.common.ConfirmDialog
 import es.leitner.app.ui.common.PinDialog
 import es.leitner.app.ui.common.TextInputDialog
 import es.leitner.app.ui.common.modeString
+import es.leitner.app.ui.common.shareDeck
 import es.leitner.core.Mode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -77,6 +79,7 @@ private sealed interface DeckDialog {
 fun DeckScreen(
     viewModel: DeckViewModel,
     media: MediaStorage,
+    deckShare: DeckShare,
     /** Comprueba el PIN; null si no hay PIN configurado. */
     pinCheck: ((String) -> Boolean)?,
     onBack: () -> Unit,
@@ -160,6 +163,17 @@ fun DeckScreen(
                                 onClick = {
                                     menuOpen = false
                                     exportCsv.launch("${deck?.name ?: defaultFile}.csv")
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.share_deck)) },
+                                enabled = cards.isNotEmpty(),
+                                onClick = {
+                                    menuOpen = false
+                                    scope.launch {
+                                        val ok = shareDeck(context, deckShare, viewModel.deckId, deck?.name ?: defaultFile)
+                                        if (!ok) snackbar.showSnackbar(context.getString(R.string.share_deck_failed))
+                                    }
                                 },
                             )
                             DropdownMenuItem(

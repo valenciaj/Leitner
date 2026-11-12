@@ -1,5 +1,7 @@
 package es.leitner.app.ui.home
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,10 +16,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -25,25 +31,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.leitner.app.R
+import es.leitner.app.data.DeckShare
 import es.leitner.app.data.DeckSummary
 import es.leitner.app.data.LeitnerRepository
 import es.leitner.app.ui.common.TextInputDialog
 import es.leitner.app.ui.common.modeString
 import es.leitner.core.Mode
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
+    deckShare: DeckShare,
     onChangeMode: () -> Unit,
     onOpenDeck: (Long) -> Unit,
     onReview: (Long) -> Unit,
@@ -54,6 +65,27 @@ fun HomeScreen(
     val decks by viewModel.decks.collectAsStateWithLifecycle()
     var showDialog by remember { mutableStateOf(false) }
     val kids = viewModel.mode == Mode.KIDS
+    var menuOpen by remember { mutableStateOf(false) }
+    val snackbar = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val importDeck = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            scope.launch {
+                val text = runCatching {
+                    context.contentResolver.openInputStream(uri)!!.use { deckShare.import(it, viewModel.mode) }
+                }.fold(
+                    onSuccess = { context.resources.getQuantityString(R.plurals.msg_deck_imported, it.cards, it.name, it.cards) },
+                    onFailure = { e ->
+                        context.getString(
+                            if (e is DeckShare.InvalidDeckFileException) R.string.msg_not_a_deck else R.string.msg_read_failed,
+                        )
+                    },
+                )
+                snackbar.showSnackbar(text)
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -65,9 +97,22 @@ fun HomeScreen(
                         Text(modeString(kids, R.string.stats_kids, R.string.stats))
                     }
                     TextButton(onClick = onChangeMode) { Text(stringResource(R.string.change_mode)) }
+                    Box {
+                        val moreLabel = stringResource(R.string.more_options)
+                        TextButton(onClick = { menuOpen = true }, modifier = Modifier.semantics { contentDescription = moreLabel }) {
+                            Text("⋮")
+                        }
+                        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.import_deck)) },
+                                onClick = { menuOpen = false; importDeck.launch(arrayOf("*/*")) },
+                            )
+                        }
+                    }
                 },
             )
         },
+        snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = { showDialog = true }) {
                 Text(modeString(kids, R.string.new_deck_kids, R.string.new_deck))

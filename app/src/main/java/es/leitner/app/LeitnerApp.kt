@@ -3,6 +3,7 @@ package es.leitner.app
 import android.app.Application
 import es.leitner.app.data.AppPrefs
 import es.leitner.app.data.BackupManager
+import es.leitner.app.data.DeckShare
 import es.leitner.app.data.LeitnerDatabase
 import es.leitner.app.data.LeitnerRepository
 import es.leitner.app.data.MediaStorage
@@ -14,4 +15,5 @@ class LeitnerApp : Application() {
     val repository: LeitnerRepository by lazy { LeitnerRepository(database, media) }
     val prefs: AppPrefs by lazy { AppPrefs(this) }
     val backup: BackupManager by lazy { BackupManager(database, media) }
+    val deckShare: DeckShare by lazy { DeckShare(database, media) }
 }
