@@ -246,6 +246,10 @@
     <string name="resume_deck">▶ Resume deck</string>
     <string name="deck_paused">⏸ Paused · %1$d cards</string>
 
+    <string name="last_30_days">Last 30 days</string>
+    <string name="month_summary">%1$d reviews · %2$d%% right</string>
+    <string name="days_ago_30">30 days ago</string>
+
     <!-- Notificación -->
     <string name="notif_channel">Daily reminder</string>
     <string name="notif_title">Time to review!</string>

@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.leitner.app.R
+import es.leitner.app.data.DayActivity
 import es.leitner.app.ui.common.centeredMaxWidth
 import es.leitner.app.ui.common.hintRes
 import es.leitner.app.ui.common.modeString
@@ -136,6 +137,8 @@ fun StatsScreen(viewModel: StatsViewModel, onBack: () -> Unit) {
                     }
                 }
             }
+
+            MonthSection(state.lastMonth)
         }
     }
 }
@@ -189,5 +192,47 @@ private fun Sticker(achievement: Achievement, earned: Boolean, modifier: Modifie
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
         )
+    }
+}
+
+/** Últimos 30 días: cada barra es el total de repasos y la parte oscura, los aciertos. */
+@Composable
+private fun MonthSection(days: List<DayActivity>) {
+    val total = days.sumOf { it.total }
+    val correct = days.sumOf { it.correct }
+    val percent = if (total == 0) 0 else correct * 100 / total
+    val summary = stringResource(R.string.month_summary, total, percent)
+    Section(stringResource(R.string.last_30_days)) {
+        Text(summary, style = MaterialTheme.typography.bodyMedium)
+        val max = (days.maxOfOrNull { it.total } ?: 0).coerceAtLeast(1)
+        Row(
+            Modifier.fillMaxWidth().height(100.dp).clearAndSetSemantics { contentDescription = summary },
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            days.forEach { day ->
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight(day.total.toFloat() / max)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.BottomCenter,
+                ) {
+                    if (day.total > 0) {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(day.correct.toFloat() / day.total)
+                                .background(MaterialTheme.colorScheme.primary),
+                        )
+                    }
+                }
+            }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(stringResource(R.string.days_ago_30), style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(R.string.today), style = MaterialTheme.typography.bodySmall)
+        }
     }
 }

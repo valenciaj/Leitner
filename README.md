@@ -55,6 +55,7 @@ La CI de GitHub genera el APK de depuración en cada push.
 
 ## Motivación
 
+- **Estadísticas**: racha, tarjetas por caja, últimos 7 días y gráfico de los últimos 30 días con el % de aciertos.
 - **Pegatinas** (logros) por aciertos, rachas y días de estudio. Se ven en 🏆 / Estadísticas y se anuncian al terminar un repaso.
 - **Widget** para la pantalla de inicio con las tarjetas pendientes de hoy. Al tocarlo abre la app.
 

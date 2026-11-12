@@ -248,6 +248,10 @@
     <string name="resume_deck">▶ Reanudar mazo</string>
     <string name="deck_paused">⏸ En pausa · %1$d tarjetas</string>
 
+    <string name="last_30_days">Últimos 30 días</string>
+    <string name="month_summary">%1$d repasos · %2$d%% aciertos</string>
+    <string name="days_ago_30">Hace 30 días</string>
+
     <!-- Notificación -->
     <string name="notif_channel">Recordatorio diario</string>
     <string name="notif_title">¡Hora de repasar!</string>
