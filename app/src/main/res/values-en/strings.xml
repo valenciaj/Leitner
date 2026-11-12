@@ -263,4 +263,7 @@
     <string name="widget_label_one">card for today</string>
     <string name="widget_label_many">cards for today</string>
     <string name="widget_label_none">All reviewed! 🎉</string>
+    <string name="practice">🎯 Practice</string>
+    <string name="practice_title">Practice</string>
+    <string name="practice_note">This was practice: boxes and statistics stay the same.</string>
 </resources>

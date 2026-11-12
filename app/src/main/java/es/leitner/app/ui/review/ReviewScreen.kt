@@ -63,7 +63,12 @@ fun ReviewScreen(viewModel: ReviewViewModel, onClose: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(modeString(kids, R.string.review_title_kids, R.string.review_title)) },
+                title = {
+                    Text(
+                        if (viewModel.practice) stringResource(R.string.practice_title)
+                        else modeString(kids, R.string.review_title_kids, R.string.review_title),
+                    )
+                },
                 navigationIcon = { TextButton(onClick = onClose) { Text(stringResource(R.string.exit)) } },
                 actions = {
                     val typeLabel = stringResource(if (state.typeAnswer) R.string.type_answer_off else R.string.type_answer_on)
@@ -79,7 +84,7 @@ fun ReviewScreen(viewModel: ReviewViewModel, onClose: () -> Unit) {
         Box(Modifier.fillMaxSize().padding(padding).centeredMaxWidth().padding(16.dp)) {
             when {
                 state.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-                state.finished -> Summary(state, kids, onClose)
+                state.finished -> Summary(state, kids, viewModel.practice, onClose)
                 else -> Question(state, kids, onReveal = viewModel::reveal, onAnswer = viewModel::answer, onCheck = viewModel::check)
             }
         }
@@ -255,7 +260,7 @@ private fun Question(
 }
 
 @Composable
-private fun Summary(state: ReviewUiState, kids: Boolean, onClose: () -> Unit) {
+private fun Summary(state: ReviewUiState, kids: Boolean, practice: Boolean, onClose: () -> Unit) {
     Column(
         Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
@@ -289,6 +294,13 @@ private fun Summary(state: ReviewUiState, kids: Boolean, onClose: () -> Unit) {
         } else {
             Text(stringResource(R.string.review_done), style = MaterialTheme.typography.titleLarge)
             Text(stringResource(R.string.review_result, state.correct, state.wrong), style = MaterialTheme.typography.bodyLarge)
+        }
+        if (practice && state.total > 0) {
+            Text(
+                stringResource(R.string.practice_note),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+            )
         }
         state.newAchievements.forEach { a ->
             Card {
