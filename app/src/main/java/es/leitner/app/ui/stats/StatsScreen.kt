@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.leitner.app.R
 import es.leitner.app.data.DayActivity
+import es.leitner.app.data.HardCard
 import es.leitner.app.ui.common.centeredMaxWidth
 import es.leitner.app.ui.common.hintRes
 import es.leitner.app.ui.common.modeString
@@ -49,7 +52,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatsScreen(viewModel: StatsViewModel, onBack: () -> Unit) {
+fun StatsScreen(viewModel: StatsViewModel, onBack: () -> Unit, onPracticeHard: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val kids = viewModel.mode == Mode.KIDS
 
@@ -139,6 +142,8 @@ fun StatsScreen(viewModel: StatsViewModel, onBack: () -> Unit) {
             }
 
             MonthSection(state.lastMonth)
+
+            HardSection(state.hardCards, kids, onPracticeHard)
         }
     }
 }
@@ -233,6 +238,47 @@ private fun MonthSection(days: List<DayActivity>) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(stringResource(R.string.days_ago_30), style = MaterialTheme.typography.bodySmall)
             Text(stringResource(R.string.today), style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+/** Las tarjetas que más se fallan, con un botón para practicarlas. */
+@Composable
+private fun HardSection(cards: List<HardCard>, kids: Boolean, onPractice: () -> Unit) {
+    Section(modeString(kids, R.string.hard_cards_kids, R.string.hard_cards)) {
+        if (cards.isEmpty()) {
+            Text(stringResource(R.string.hard_cards_none), style = MaterialTheme.typography.bodyMedium)
+        } else {
+            HardList(cards, onPractice)
+        }
+    }
+}
+
+@Composable
+private fun HardList(cards: List<HardCard>, onPractice: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(stringResource(R.string.hard_cards_help), style = MaterialTheme.typography.bodySmall)
+        cards.forEachIndexed { index, hard ->
+            if (index > 0) HorizontalDivider()
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(hard.card.front.ifBlank { "🖼 🔊" }, style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        hard.card.back.ifBlank { "🖼 🔊" },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Text(
+                    stringResource(R.string.hard_card_fails, hard.fails, hard.answers),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(start = 8.dp),
+                )
+            }
+        }
+        Button(onClick = onPractice, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.practice_hard))
         }
     }
 }

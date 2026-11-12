@@ -2,6 +2,7 @@ package es.leitner.app.data
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -184,6 +185,13 @@ data class BoxCount(val box: Int, val count: Int)
 
 data class DayActivity(val day: Long, val correct: Int, val total: Int)
 
+/** Tarjeta que se falla a menudo, con sus fallos y respuestas registradas. */
+data class HardCard(
+    @Embedded val card: CardEntity,
+    val fails: Int,
+    val answers: Int,
+)
+
 @Dao
 interface StatsDao {
     @Insert
@@ -238,6 +246,27 @@ interface StatsDao {
         """,
     )
     suspend fun reviewDays(mode: Mode): List<Long>
+
+    /**
+     * Tarjetas difíciles de un modo: falladas al menos [minFails] veces, de más a menos
+     * porcentaje de fallos. Las de mazos en pausa no salen.
+     */
+    @Query(
+        """
+        SELECT c.*,
+               SUM(CASE WHEN r.correct = 0 THEN 1 ELSE 0 END) AS fails,
+               COUNT(r.id) AS answers
+        FROM cards c
+        JOIN review_log r ON r.cardId = c.id
+        JOIN decks d ON c.deckId = d.id
+        WHERE d.mode = :mode AND d.paused = 0
+        GROUP BY c.id
+        HAVING fails >= :minFails
+        ORDER BY fails * 1.0 / answers DESC, fails DESC, c.id
+        LIMIT :limit
+        """,
+    )
+    fun observeHardCards(mode: Mode, minFails: Int, limit: Int): Flow<List<HardCard>>
 
     @Query("SELECT COUNT(*) FROM review_log r JOIN decks d ON r.deckId = d.id WHERE d.mode = :mode AND r.correct = 1")
     fun observeTotalCorrect(mode: Mode): Flow<Int>

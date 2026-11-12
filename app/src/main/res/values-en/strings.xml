@@ -286,4 +286,10 @@
     <string name="tags">Tags (optional)</string>
     <string name="tags_hint">e.g. verbs, unit 3</string>
     <string name="practice_tag">🎯 Practice “%1$s”</string>
+    <string name="hard_cards">Hard cards</string>
+    <string name="hard_cards_kids">The tricky ones 💪</string>
+    <string name="hard_cards_help">The ones you miss most (at least twice). Practising them doesn\'t change their boxes.</string>
+    <string name="hard_cards_none">No hard cards yet. Cards you miss 2 times or more show up here.</string>
+    <string name="hard_card_fails">❌ %1$d of %2$d</string>
+    <string name="practice_hard">🎯 Practice the hard ones</string>
 </resources>
