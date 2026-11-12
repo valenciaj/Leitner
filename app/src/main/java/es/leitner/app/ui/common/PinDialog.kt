@@ -12,8 +12,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import es.leitner.app.R
 import es.leitner.core.Pin
 
 /**
@@ -21,7 +23,7 @@ import es.leitner.core.Pin
  */
 @Composable
 fun PinDialog(
-    title: String = "Introduce el PIN",
+    title: String = stringResource(R.string.pin_enter),
     check: (String) -> Boolean,
     onDismiss: () -> Unit,
     onSuccess: () -> Unit,
@@ -36,21 +38,21 @@ fun PinDialog(
                 OutlinedTextField(
                     value = pin,
                     onValueChange = { pin = it.filter(Char::isDigit).take(Pin.LENGTH); error = false },
-                    label = { Text("PIN") },
+                    label = { Text(stringResource(R.string.pin)) },
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                     isError = error,
                 )
-                if (error) Text("PIN incorrecto", color = MaterialTheme.colorScheme.error)
+                if (error) Text(stringResource(R.string.pin_wrong), color = MaterialTheme.colorScheme.error)
             }
         },
         confirmButton = {
             TextButton(
                 enabled = Pin.isValidFormat(pin),
                 onClick = { if (check(pin)) onSuccess() else { error = true; pin = "" } },
-            ) { Text("Aceptar") }
+            ) { Text(stringResource(R.string.accept)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
 }

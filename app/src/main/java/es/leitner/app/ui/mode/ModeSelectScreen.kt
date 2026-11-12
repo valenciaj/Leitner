@@ -1,6 +1,5 @@
 package es.leitner.app.ui.mode
 
-import es.leitner.app.ui.ModeNames
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,8 +17,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import es.leitner.app.R
+import es.leitner.app.ui.ModeNames
 import es.leitner.core.Mode
 
 @Composable
@@ -30,7 +32,7 @@ fun ModeSelectScreen(onModeSelected: (Mode) -> Unit, onOpenSettings: () -> Unit)
             verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text("¿Quién va a estudiar?", style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.mode_question), style = MaterialTheme.typography.headlineMedium)
 
             Button(
                 onClick = { onModeSelected(Mode.KIDS) },
@@ -47,7 +49,7 @@ fun ModeSelectScreen(onModeSelected: (Mode) -> Unit, onOpenSettings: () -> Unit)
                 Text(ModeNames.NORMAL, fontSize = 20.sp)
             }
 
-            TextButton(onClick = onOpenSettings) { Text("⚙ Ajustes de cajas") }
+            TextButton(onClick = onOpenSettings) { Text(stringResource(R.string.box_settings)) }
         }
     }
 }

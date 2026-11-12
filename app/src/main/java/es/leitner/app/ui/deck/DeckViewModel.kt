@@ -1,21 +1,23 @@
 package es.leitner.app.ui.deck
 
+import android.content.res.Resources
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import es.leitner.app.R
+import es.leitner.app.data.CardContent
 import es.leitner.app.data.CardEntity
 import es.leitner.app.data.DeckEntity
 import es.leitner.app.data.LeitnerRepository
-import es.leitner.app.data.CardContent
-import es.leitner.core.LeitnerConfig
-import es.leitner.core.Mode
 import es.leitner.core.CsvExport
 import es.leitner.core.CsvImport
-import kotlinx.coroutines.flow.combine
+import es.leitner.core.LeitnerConfig
+import es.leitner.core.Mode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -23,6 +25,8 @@ class DeckViewModel(
     private val repository: LeitnerRepository,
     val mode: Mode,
     val deckId: Long,
+    /** Para los textos de los mensajes. */
+    private val resources: Resources,
 ) : ViewModel() {
 
     val deck: StateFlow<DeckEntity?> = repository.observeDeck(deckId)
@@ -66,9 +70,8 @@ class DeckViewModel(
         viewModelScope.launch {
             val added = repository.addReverseForDeck(deckId)
             _message.value = when (added) {
-                0 -> "Todas las tarjetas ya tienen su versión al revés"
-                1 -> "1 tarjeta al revés creada"
-                else -> "$added tarjetas al revés creadas"
+                0 -> resources.getString(R.string.msg_reversed_none)
+                else -> resources.getQuantityString(R.plurals.msg_reversed, added, added)
             }
         }
     }
@@ -82,9 +85,10 @@ class DeckViewModel(
         val all = cards.value.size
         val exported = cards.value.count { it.front.isNotBlank() && it.back.isNotBlank() }
         _message.value = when {
-            !ok -> "No se pudo exportar"
-            exported < all -> "$exported tarjetas exportadas · ${all - exported} sin texto se han omitido"
-            else -> "$exported tarjetas exportadas"
+            !ok -> resources.getString(R.string.msg_export_failed)
+            exported < all -> resources.getQuantityString(R.plurals.msg_exported, exported, exported) + " · " +
+                resources.getQuantityString(R.plurals.msg_export_skipped, all - exported, all - exported)
+            else -> resources.getQuantityString(R.plurals.msg_exported, exported, exported)
         }
     }
 
@@ -98,15 +102,18 @@ class DeckViewModel(
 
     fun importCsv(text: String?) {
         if (text == null) {
-            _message.value = "No se pudo leer el fichero"
+            _message.value = resources.getString(R.string.msg_read_failed)
             return
         }
         val result = CsvImport.parse(text)
         viewModelScope.launch {
             if (result.cards.isNotEmpty()) repository.addCards(deckId, result.cards)
             _message.value = buildString {
-                append(if (result.cards.size == 1) "1 tarjeta importada" else "${result.cards.size} tarjetas importadas")
-                if (result.skipped > 0) append(" · ${result.skipped} líneas incompletas")
+                append(resources.getQuantityString(R.plurals.msg_imported, result.cards.size, result.cards.size))
+                if (result.skipped > 0) {
+                    append(" · ")
+                    append(resources.getQuantityString(R.plurals.msg_incomplete_lines, result.skipped, result.skipped))
+                }
             }
         }
     }
@@ -137,8 +144,9 @@ class DeckViewModel(
         private val repository: LeitnerRepository,
         private val mode: Mode,
         private val deckId: Long,
+        private val resources: Resources,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = DeckViewModel(repository, mode, deckId) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = DeckViewModel(repository, mode, deckId, resources) as T
     }
 }

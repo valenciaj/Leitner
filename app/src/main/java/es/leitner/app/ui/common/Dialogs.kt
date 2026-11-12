@@ -14,15 +14,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import es.leitner.app.R
 
 /** Diálogo con un solo campo de texto (crear o renombrar mazo). */
 @Composable
 fun TextInputDialog(
     title: String,
     initial: String = "",
-    label: String = "Nombre",
-    confirmText: String = "Guardar",
+    label: String = stringResource(R.string.name),
+    confirmText: String = stringResource(R.string.save),
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit,
 ) {
@@ -36,7 +38,7 @@ fun TextInputDialog(
         confirmButton = {
             TextButton(onClick = { onConfirm(text) }, enabled = text.isNotBlank()) { Text(confirmText) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
 }
 
@@ -55,6 +57,6 @@ fun ConfirmDialog(
         confirmButton = {
             TextButton(onClick = onConfirm) { Text(confirmText, color = MaterialTheme.colorScheme.error) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
 }

@@ -27,11 +27,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import es.leitner.app.R
 import es.leitner.app.data.DeckSummary
 import es.leitner.app.data.LeitnerRepository
 import es.leitner.app.ui.common.TextInputDialog
+import es.leitner.app.ui.common.modeString
 import es.leitner.core.Mode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,23 +55,26 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (kids) "Mis tarjetas" else "Mazos") },
+                title = { Text(modeString(kids, R.string.decks_title_kids, R.string.decks_title)) },
                 actions = {
-                    TextButton(onClick = onOpenStats) { Text(if (kids) "🏆" else "Estadísticas") }
-                    TextButton(onClick = onChangeMode) { Text("Cambiar modo") }
+                    val statsLabel = stringResource(R.string.stats)
+                    TextButton(onClick = onOpenStats, modifier = Modifier.semantics { contentDescription = statsLabel }) {
+                        Text(modeString(kids, R.string.stats_kids, R.string.stats))
+                    }
+                    TextButton(onClick = onChangeMode) { Text(stringResource(R.string.change_mode)) }
                 },
             )
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = { showDialog = true }) {
-                Text(if (kids) "➕ Nuevo mazo" else "Nuevo mazo")
+                Text(modeString(kids, R.string.new_deck_kids, R.string.new_deck))
             }
         },
     ) { padding ->
         if (decks.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Text(
-                    if (kids) "¡Crea tu primer mazo! 🎉" else "Aún no hay mazos",
+                    modeString(kids, R.string.no_decks_kids, R.string.no_decks),
                     style = MaterialTheme.typography.titleMedium,
                 )
             }
@@ -83,7 +91,7 @@ fun HomeScreen(
                         Button(
                             onClick = { onReview(LeitnerRepository.ALL_DECKS) },
                             modifier = Modifier.fillMaxWidth().height(if (kids) 72.dp else 56.dp),
-                        ) { Text(if (kids) "▶ Jugar con todo ($totalDue)" else "Repasar todo ($totalDue)") }
+                        ) { Text(modeString(kids, R.string.review_all_kids, R.string.review_all, totalDue)) }
                     }
                 }
                 items(decks, key = { it.id }) { deck -> DeckRow(deck, kids, onClick = { onOpenDeck(deck.id) }, onReview = { onReview(deck.id) }) }
@@ -93,8 +101,8 @@ fun HomeScreen(
 
     if (showDialog) {
         TextInputDialog(
-            title = "Nuevo mazo",
-            confirmText = "Crear",
+            title = stringResource(R.string.new_deck),
+            confirmText = stringResource(R.string.create),
             onDismiss = { showDialog = false },
             onConfirm = {
                 viewModel.createDeck(it)
@@ -111,12 +119,12 @@ private fun DeckRow(deck: DeckSummary, kids: Boolean, onClick: () -> Unit, onRev
             Column(Modifier.weight(1f)) {
                 Text(deck.name, style = MaterialTheme.typography.titleMedium)
                 Text(
-                    if (kids) "${deck.dueCards} para hoy ⭐" else "${deck.dueCards} pendientes · ${deck.totalCards} tarjetas",
+                    if (kids) stringResource(R.string.deck_summary_kids, deck.dueCards) else stringResource(R.string.deck_summary, deck.dueCards, deck.totalCards),
                     style = MaterialTheme.typography.bodyLarge,
                 )
             }
             if (deck.dueCards > 0) {
-                Button(onClick = onReview) { Text(if (kids) "▶ Jugar" else "Repasar") }
+                Button(onClick = onReview) { Text(modeString(kids, R.string.review_kids, R.string.review)) }
             }
         }
     }

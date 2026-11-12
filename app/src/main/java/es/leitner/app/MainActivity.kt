@@ -2,8 +2,8 @@ package es.leitner.app
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -80,7 +81,7 @@ class MainActivity : ComponentActivity() {
                     LeitnerTheme(mode) {
                         if (askPin) {
                             PinDialog(
-                                title = "PIN para salir",
+                                title = stringResource(R.string.pin_to_leave),
                                 check = prefs::checkPin,
                                 onDismiss = { askPin = false },
                                 onSuccess = { askPin = false; leave() },
@@ -104,7 +105,7 @@ class MainActivity : ComponentActivity() {
                 ) { entry ->
                     val mode = Mode.valueOf(entry.arguments?.getString("mode") ?: Mode.NORMAL.name)
                     val deckId = entry.arguments?.getLong("deckId") ?: 0L
-                    val vm: DeckViewModel = viewModel(factory = DeckViewModel.Factory(repository, mode, deckId))
+                    val vm: DeckViewModel = viewModel(factory = DeckViewModel.Factory(repository, mode, deckId, resources))
                     LeitnerTheme(mode) {
                         DeckScreen(
                             viewModel = vm,

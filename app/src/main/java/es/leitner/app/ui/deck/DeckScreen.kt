@@ -8,15 +8,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
@@ -34,17 +34,21 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import es.leitner.app.R
 import es.leitner.app.data.CardEntity
 import es.leitner.app.data.MediaStorage
 import es.leitner.app.data.content
@@ -53,6 +57,7 @@ import es.leitner.app.ui.common.CardImage
 import es.leitner.app.ui.common.ConfirmDialog
 import es.leitner.app.ui.common.PinDialog
 import es.leitner.app.ui.common.TextInputDialog
+import es.leitner.app.ui.common.modeString
 import es.leitner.core.Mode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -119,18 +124,22 @@ fun DeckScreen(
         }
     }
     val kids = viewModel.mode == Mode.KIDS
+    val defaultFile = stringResource(R.string.default_deck_file)
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(deck?.name ?: "") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("‹ Atrás") } },
+                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.back)) } },
                 actions = {
                     Box {
-                        TextButton(onClick = { menuOpen = true }) { Text("⋮") }
+                        val moreLabel = stringResource(R.string.more_options)
+                        TextButton(onClick = { menuOpen = true }, modifier = Modifier.semantics { contentDescription = moreLabel }) {
+                            Text("⋮")
+                        }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             DropdownMenuItem(
-                                text = { Text("Importar CSV") },
+                                text = { Text(stringResource(R.string.import_csv)) },
                                 onClick = {
                                     menuOpen = false
                                     importCsv.launch(
@@ -139,26 +148,26 @@ fun DeckScreen(
                                 },
                             )
                             DropdownMenuItem(
-                                text = { Text("Exportar CSV") },
+                                text = { Text(stringResource(R.string.export_csv)) },
                                 enabled = cards.isNotEmpty(),
                                 onClick = {
                                     menuOpen = false
-                                    exportCsv.launch("${deck?.name ?: "mazo"}.csv")
+                                    exportCsv.launch("${deck?.name ?: defaultFile}.csv")
                                 },
                             )
                             DropdownMenuItem(
-                                text = { Text("Crear tarjetas al revés") },
+                                text = { Text(stringResource(R.string.create_reversed)) },
                                 enabled = cards.isNotEmpty(),
                                 onClick = { menuOpen = false; viewModel.addReversedCards() },
                             )
                             DropdownMenuItem(
-                                text = { Text("Renombrar mazo") },
+                                text = { Text(stringResource(R.string.rename_deck)) },
                                 onClick = { menuOpen = false; dialog = DeckDialog.Rename },
                             )
                             // En modo niños solo se puede borrar un mazo con PIN.
                             if (!kids || pinCheck != null) {
                                 DropdownMenuItem(
-                                    text = { Text("Borrar mazo", color = MaterialTheme.colorScheme.error) },
+                                    text = { Text(stringResource(R.string.delete_deck), color = MaterialTheme.colorScheme.error) },
                                     onClick = {
                                         menuOpen = false
                                         dialog = if (kids) DeckDialog.PinForDelete else DeckDialog.DeleteDeck
@@ -173,14 +182,14 @@ fun DeckScreen(
         snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = { dialog = DeckDialog.NewCard }) {
-                Text(if (kids) "➕ Nueva tarjeta" else "Nueva tarjeta")
+                Text(modeString(kids, R.string.new_card_kids, R.string.new_card))
             }
         },
     ) { padding ->
         if (cards.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Text(
-                    if (kids) "¡Añade tu primera tarjeta! ✏️" else "Este mazo no tiene tarjetas",
+                    modeString(kids, R.string.empty_deck_kids, R.string.empty_deck),
                     style = MaterialTheme.typography.titleMedium,
                 )
             }
@@ -192,7 +201,7 @@ fun DeckScreen(
             ) {
                 item {
                     Text(
-                        "${cards.size} tarjetas · ${config.boxCount} cajas",
+                        stringResource(R.string.deck_header, cards.size, config.boxCount),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
@@ -201,16 +210,22 @@ fun DeckScreen(
                         OutlinedTextField(
                             value = query,
                             onValueChange = viewModel::setQuery,
-                            label = { Text("🔍 Buscar") },
+                            label = { Text(stringResource(R.string.search)) },
                             singleLine = true,
                             trailingIcon = {
-                                if (query.isNotEmpty()) TextButton(onClick = { viewModel.setQuery("") }) { Text("✕") }
+                                if (query.isNotEmpty()) {
+                                    val clearLabel = stringResource(R.string.clear_search)
+                                    TextButton(
+                                        onClick = { viewModel.setQuery("") },
+                                        modifier = Modifier.semantics { contentDescription = clearLabel },
+                                    ) { Text("✕") }
+                                }
                             },
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
                     if (visibleCards.isEmpty()) {
-                        item(key = "noresults") { Text("Ninguna tarjeta coincide", style = MaterialTheme.typography.bodyMedium) }
+                        item(key = "noresults") { Text(stringResource(R.string.no_results), style = MaterialTheme.typography.bodyMedium) }
                     }
                 }
                 items(visibleCards, key = { it.id }) { card ->
@@ -223,14 +238,14 @@ fun DeckScreen(
     when (val d = dialog) {
         null -> Unit
         DeckDialog.NewCard -> CardEditDialog(
-            title = "Nueva tarjeta",
+            title = stringResource(R.string.new_card),
             media = media,
             offerReverse = true,
             onDismiss = { dialog = null },
             onSave = { content, reversed -> viewModel.addCard(content, reversed); dialog = null },
         )
         is DeckDialog.EditCard -> CardEditDialog(
-            title = "Editar tarjeta",
+            title = stringResource(R.string.edit_card),
             media = media,
             initial = d.card.content(),
             onDismiss = { dialog = null },
@@ -238,7 +253,7 @@ fun DeckScreen(
             onDelete = { viewModel.deleteCard(d.card.id); dialog = null },
         )
         DeckDialog.Rename -> TextInputDialog(
-            title = "Renombrar mazo",
+            title = stringResource(R.string.rename_deck),
             initial = deck?.name.orEmpty(),
             onDismiss = { dialog = null },
             onConfirm = { viewModel.rename(it); dialog = null },
@@ -249,9 +264,9 @@ fun DeckScreen(
             onSuccess = { dialog = DeckDialog.DeleteDeck },
         )
         DeckDialog.DeleteDeck -> ConfirmDialog(
-            title = "¿Borrar el mazo?",
-            message = "Se borrarán también sus ${cards.size} tarjetas. No se puede deshacer.",
-            confirmText = "Borrar",
+            title = stringResource(R.string.delete_deck_question),
+            message = stringResource(R.string.delete_deck_message, cards.size),
+            confirmText = stringResource(R.string.delete),
             onDismiss = { dialog = null },
             onConfirm = { dialog = null; viewModel.deleteDeck(onDone = onBack) },
         )
@@ -274,13 +289,27 @@ private fun CardRow(card: CardEntity, kids: Boolean, onClick: () -> Unit) {
                 Spacer(Modifier.width(12.dp))
             }
             Column(Modifier.weight(1f)) {
-                Text(sideLabel(card.front, card.imageUri, card.audioPath), style = MaterialTheme.typography.titleMedium)
-                Text(sideLabel(card.back, card.backImageUri, card.backAudioPath), style = MaterialTheme.typography.bodyLarge)
+                val withImage = stringResource(R.string.has_image)
+                val withAudio = stringResource(R.string.has_audio)
+                Text(
+                    sideLabel(card.front, card.imageUri, card.audioPath),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.semantics { contentDescription = sideDescription(card.front, card.imageUri, card.audioPath, withImage, withAudio) },
+                )
+                Text(
+                    sideLabel(card.back, card.backImageUri, card.backAudioPath),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.semantics { contentDescription = sideDescription(card.back, card.backImageUri, card.backAudioPath, withImage, withAudio) },
+                )
             }
-            AssistChip(onClick = onClick, label = { Text("Caja ${card.box}") })
+            AssistChip(onClick = onClick, label = { Text(stringResource(R.string.box_n, card.box)) })
         }
     }
 }
+
+/** Lo mismo que [sideLabel], con palabras en lugar de iconos (para el lector de pantalla). */
+private fun sideDescription(text: String, image: String?, audio: String?, withImage: String, withAudio: String): String =
+    listOfNotNull(text.ifBlank { null }, image?.let { withImage }, audio?.let { withAudio }).joinToString(", ")
 
 /** Texto de un lado de la tarjeta, con iconos si tiene imagen o audio. */
 private fun sideLabel(text: String, image: String?, audio: String?): String {

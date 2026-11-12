@@ -30,13 +30,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import es.leitner.app.R
 import es.leitner.app.media.rememberAudioPlayer
 import es.leitner.app.media.rememberSpeaker
 import es.leitner.app.ui.common.CardImage
+import es.leitner.app.ui.common.modeString
+import es.leitner.app.ui.common.pluralResource
 import es.leitner.core.Mode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,10 +54,10 @@ fun ReviewScreen(viewModel: ReviewViewModel, onClose: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (kids) "¡A jugar!" else "Repaso") },
-                navigationIcon = { TextButton(onClick = onClose) { Text("✕ Salir") } },
+                title = { Text(modeString(kids, R.string.review_title_kids, R.string.review_title)) },
+                navigationIcon = { TextButton(onClick = onClose) { Text(stringResource(R.string.exit)) } },
                 actions = {
-                    if (state.canUndo) TextButton(onClick = viewModel::undo) { Text("↶ Deshacer") }
+                    if (state.canUndo) TextButton(onClick = viewModel::undo) { Text(stringResource(R.string.undo)) }
                 },
             )
         },
@@ -97,10 +103,10 @@ private fun Question(
             modifier = Modifier.fillMaxWidth(),
         )
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("${state.position} / ${state.queueSize}", style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.progress, state.position, state.queueSize), style = MaterialTheme.typography.bodyMedium)
             if (state.isRetry) {
                 Text(
-                    if (kids) "🔁 ¡Otra vez!" else "🔁 Repaso de falladas",
+                    modeString(kids, R.string.retry_kids, R.string.retry),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.tertiary,
                 )
@@ -108,7 +114,11 @@ private fun Question(
         }
 
         Card(
-            Modifier.fillMaxWidth().weight(1f).clickable(enabled = !state.revealed, onClick = onReveal),
+            Modifier.fillMaxWidth().weight(1f).clickable(
+                enabled = !state.revealed,
+                onClickLabel = stringResource(R.string.show_answer),
+                onClick = onReveal,
+            ),
         ) {
             Column(
                 Modifier.fillMaxSize().padding(24.dp),
@@ -116,7 +126,11 @@ private fun Question(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 card.imageUri?.let {
-                    CardImage(it, Modifier.fillMaxWidth().weight(1f, fill = false).heightIn(max = 260.dp))
+                    CardImage(
+                        it,
+                        Modifier.fillMaxWidth().weight(1f, fill = false).heightIn(max = 260.dp),
+                        contentDescription = stringResource(R.string.cd_question_image),
+                    )
                     Spacer(Modifier.height(16.dp))
                 }
                 if (card.front.isNotBlank()) {
@@ -128,7 +142,7 @@ private fun Question(
                     )
                     if (card.audioPath == null) {
                         TextButton(onClick = { speaker.speak(card.front) }) {
-                            Text("🗣 Leer", fontSize = if (kids) 22.sp else 14.sp)
+                            Text(stringResource(R.string.read_aloud), fontSize = if (kids) 22.sp else 14.sp)
                         }
                     }
                 }
@@ -137,12 +151,16 @@ private fun Question(
                     OutlinedButton(
                         onClick = { if (player.isPlaying) player.stop() else player.play(path) },
                         modifier = Modifier.height(if (kids) 64.dp else 48.dp),
-                    ) { Text(if (player.isPlaying) "⏹ Parar" else "🔊 Escuchar", fontSize = if (kids) 24.sp else 16.sp) }
+                    ) { Text(stringResource(if (player.isPlaying) R.string.stop else R.string.listen), fontSize = if (kids) 24.sp else 16.sp) }
                 }
                 if (state.revealed) {
                     HorizontalDivider(Modifier.padding(vertical = 24.dp))
                     card.backImageUri?.let {
-                        CardImage(it, Modifier.fillMaxWidth().weight(1f, fill = false).heightIn(max = 220.dp))
+                        CardImage(
+                            it,
+                            Modifier.fillMaxWidth().weight(1f, fill = false).heightIn(max = 220.dp),
+                            contentDescription = stringResource(R.string.cd_answer_image),
+                        )
                         Spacer(Modifier.height(12.dp))
                     }
                     if (card.back.isNotBlank()) {
@@ -158,16 +176,16 @@ private fun Question(
                         OutlinedButton(
                             onClick = { if (player.isPlaying) player.stop() else player.play(backAudio) },
                             modifier = Modifier.height(if (kids) 64.dp else 48.dp),
-                        ) { Text(if (player.isPlaying) "⏹ Parar" else "🔊 Escuchar", fontSize = if (kids) 24.sp else 16.sp) }
+                        ) { Text(stringResource(if (player.isPlaying) R.string.stop else R.string.listen), fontSize = if (kids) 24.sp else 16.sp) }
                     } else if (card.back.isNotBlank()) {
                         TextButton(onClick = { speaker.speak(card.back) }) {
-                            Text("🗣 Leer", fontSize = if (kids) 22.sp else 14.sp)
+                            Text(stringResource(R.string.read_aloud), fontSize = if (kids) 22.sp else 14.sp)
                         }
                     }
                 } else {
                     Spacer(Modifier.height(24.dp))
                     Text(
-                        if (kids) "👆 Toca para ver la respuesta" else "Toca para ver la respuesta",
+                        modeString(kids, R.string.tap_to_reveal_kids, R.string.tap_to_reveal),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
@@ -181,16 +199,16 @@ private fun Question(
                     onClick = { onAnswer(false) },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935)),
                     modifier = Modifier.weight(1f).height(height),
-                ) { Text(if (kids) "❌ Fallé" else "Fallé") }
+                ) { Text(modeString(kids, R.string.wrong_kids, R.string.wrong)) }
                 Button(
                     onClick = { onAnswer(true) },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047)),
                     modifier = Modifier.weight(1f).height(height),
-                ) { Text(if (kids) "✅ ¡Acerté!" else "Acerté") }
+                ) { Text(modeString(kids, R.string.right_kids, R.string.right)) }
             }
         } else {
             Button(onClick = onReveal, modifier = Modifier.fillMaxWidth().height(if (kids) 88.dp else 56.dp)) {
-                Text("Ver respuesta")
+                Text(stringResource(R.string.show_answer))
             }
         }
     }
@@ -205,37 +223,44 @@ private fun Summary(state: ReviewUiState, kids: Boolean, onClose: () -> Unit) {
     ) {
         if (state.total == 0) {
             Text(
-                if (kids) "¡Hoy no hay tarjetas! 🎈" else "No hay tarjetas pendientes hoy",
+                modeString(kids, R.string.nothing_due_kids, R.string.nothing_due),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
             )
         } else if (kids) {
-            Text("⭐".repeat(state.stars).ifEmpty { "💪" }, fontSize = 64.sp)
+            val starsLabel = pluralResource(R.plurals.cd_stars, state.stars)
             Text(
-                when (state.stars) {
-                    3 -> "¡Increíble!"
-                    2 -> "¡Muy bien!"
-                    1 -> "¡Buen trabajo!"
-                    else -> "¡Sigue practicando!"
-                },
+                "⭐".repeat(state.stars).ifEmpty { "💪" },
+                fontSize = 64.sp,
+                modifier = Modifier.semantics { contentDescription = starsLabel },
+            )
+            Text(
+                stringResource(
+                    when (state.stars) {
+                        3 -> R.string.praise_3
+                        2 -> R.string.praise_2
+                        1 -> R.string.praise_1
+                        else -> R.string.praise_0
+                    },
+                ),
                 style = MaterialTheme.typography.titleLarge,
             )
-            Text("Acertaste ${state.correct} de ${state.total}", style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.kids_result, state.correct, state.total), style = MaterialTheme.typography.bodyLarge)
         } else {
-            Text("Repaso terminado", style = MaterialTheme.typography.titleLarge)
-            Text("Aciertos: ${state.correct} · Fallos: ${state.wrong}", style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.review_done), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.review_result, state.correct, state.wrong), style = MaterialTheme.typography.bodyLarge)
         }
         state.newAchievements.forEach { a ->
             Card {
                 Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(a.emoji, fontSize = if (kids) 48.sp else 32.sp)
                     Column(Modifier.padding(start = 12.dp)) {
-                        Text(if (kids) "¡Nueva pegatina!" else "Nuevo logro", style = MaterialTheme.typography.bodyMedium)
+                        Text(modeString(kids, R.string.new_sticker, R.string.new_achievement), style = MaterialTheme.typography.bodyMedium)
                         Text(a.title, style = MaterialTheme.typography.titleMedium)
                     }
                 }
             }
         }
-        Button(onClick = onClose, modifier = Modifier.height(if (kids) 72.dp else 48.dp)) { Text("Volver") }
+        Button(onClick = onClose, modifier = Modifier.height(if (kids) 72.dp else 48.dp)) { Text(stringResource(R.string.back_home)) }
     }
 }
