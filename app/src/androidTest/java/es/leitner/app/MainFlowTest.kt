@@ -43,6 +43,14 @@ class MainFlowTest {
         rule.waitUntil(5_000) { rule.onAllNodes(hasText("Ver respuesta")).fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithText("Ver respuesta").performClick()
         rule.onNodeWithText("dog").assertExists()
+
+        // Una fallada se repite al final de la sesión.
+        rule.onNodeWithText("Fallé").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasText("🔁 Repaso de falladas")).fetchSemanticsNodes().isNotEmpty() }
+
+        // Deshacer vuelve a la tarjeta con la respuesta a la vista.
+        rule.onNodeWithText("↶ Deshacer").performClick()
+        rule.waitUntil(5_000) { rule.onAllNodes(hasText("Acerté")).fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithText("Acerté").performClick()
 
         rule.waitUntil(5_000) { rule.onAllNodes(hasText("Repaso terminado")).fetchSemanticsNodes().isNotEmpty() }

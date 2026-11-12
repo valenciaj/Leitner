@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.leitner.app.media.rememberAudioPlayer
+import es.leitner.app.media.rememberSpeaker
 import es.leitner.app.ui.common.CardImage
 import es.leitner.core.Mode
 
@@ -49,6 +50,9 @@ fun ReviewScreen(viewModel: ReviewViewModel, onClose: () -> Unit) {
             TopAppBar(
                 title = { Text(if (kids) "¡A jugar!" else "Repaso") },
                 navigationIcon = { TextButton(onClick = onClose) { Text("✕ Salir") } },
+                actions = {
+                    if (state.canUndo) TextButton(onClick = viewModel::undo) { Text("↶ Deshacer") }
+                },
             )
         },
     ) { padding ->
@@ -71,17 +75,37 @@ private fun Question(
 ) {
     val card = state.card ?: return
     val player = rememberAudioPlayer()
-    // En modo niños el audio suena solo al mostrar cada tarjeta.
-    LaunchedEffect(card.id) {
+    val speaker = rememberSpeaker()
+    // En modo niños la pregunta suena sola: el audio grabado o, si no hay, la voz del móvil.
+    LaunchedEffect(card.id, state.position) {
         player.stop()
-        if (kids) card.audioPath?.let(player::play)
+        speaker.stop()
+        if (kids) {
+            if (card.audioPath != null) player.play(card.audioPath) else speaker.speak(card.front)
+        }
+    }
+    // En modo niños también se lee la respuesta al darle la vuelta.
+    LaunchedEffect(card.id, state.position, state.revealed) {
+        if (kids && state.revealed) {
+            player.stop()
+            speaker.speak(card.back)
+        }
     }
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         LinearProgressIndicator(
-            progress = { (state.position - 1).toFloat() / state.total },
+            progress = { (state.position - 1).toFloat() / state.queueSize },
             modifier = Modifier.fillMaxWidth(),
         )
-        Text("${state.position} / ${state.total}", style = MaterialTheme.typography.bodyMedium)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("${state.position} / ${state.queueSize}", style = MaterialTheme.typography.bodyMedium)
+            if (state.isRetry) {
+                Text(
+                    if (kids) "🔁 ¡Otra vez!" else "🔁 Repaso de falladas",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.tertiary,
+                )
+            }
+        }
 
         Card(
             Modifier.fillMaxWidth().weight(1f).clickable(enabled = !state.revealed, onClick = onReveal),
@@ -102,6 +126,11 @@ private fun Question(
                         textAlign = TextAlign.Center,
                         fontSize = if (kids) 36.sp else 28.sp,
                     )
+                    if (card.audioPath == null) {
+                        TextButton(onClick = { speaker.speak(card.front) }) {
+                            Text("🗣 Leer", fontSize = if (kids) 22.sp else 14.sp)
+                        }
+                    }
                 }
                 card.audioPath?.let { path ->
                     Spacer(Modifier.height(12.dp))
@@ -118,6 +147,9 @@ private fun Question(
                         textAlign = TextAlign.Center,
                         fontSize = if (kids) 32.sp else 24.sp,
                     )
+                    TextButton(onClick = { speaker.speak(card.back) }) {
+                        Text("🗣 Leer", fontSize = if (kids) 22.sp else 14.sp)
+                    }
                 } else {
                     Spacer(Modifier.height(24.dp))
                     Text(

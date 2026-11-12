@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.leitner.app.data.DeckSummary
+import es.leitner.app.data.LeitnerRepository
 import es.leitner.app.ui.common.TextInputDialog
 import es.leitner.core.Mode
 
@@ -74,6 +76,16 @@ fun HomeScreen(
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                val totalDue = decks.sumOf { it.dueCards }
+                // Con varios mazos pendientes, un botón para repasarlos todos de una vez.
+                if (decks.count { it.dueCards > 0 } > 1) {
+                    item(key = "all") {
+                        Button(
+                            onClick = { onReview(LeitnerRepository.ALL_DECKS) },
+                            modifier = Modifier.fillMaxWidth().height(if (kids) 72.dp else 56.dp),
+                        ) { Text(if (kids) "▶ Jugar con todo ($totalDue)" else "Repasar todo ($totalDue)") }
+                    }
+                }
                 items(decks, key = { it.id }) { deck -> DeckRow(deck, kids, onClick = { onOpenDeck(deck.id) }, onReview = { onReview(deck.id) }) }
             }
         }
