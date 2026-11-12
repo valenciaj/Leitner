@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import es.leitner.core.Mode
 
 @Composable
-fun ModeSelectScreen(onModeSelected: (Mode) -> Unit) {
+fun ModeSelectScreen(onModeSelected: (Mode) -> Unit, onOpenSettings: () -> Unit) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -44,6 +45,8 @@ fun ModeSelectScreen(onModeSelected: (Mode) -> Unit) {
             ) {
                 Text("Modo normal", fontSize = 20.sp)
             }
+
+            TextButton(onClick = onOpenSettings) { Text("⚙ Ajustes de cajas") }
         }
     }
 }

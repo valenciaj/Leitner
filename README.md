@@ -32,6 +32,6 @@ La CI de GitHub genera el APK de depuración en cada push.
 
 1. ✅ Proyecto base y base de datos
 2. ✅ Crear y editar mazos y tarjetas
-3. Pantalla de repaso diario
+3. ✅ Pantalla de repaso diario y ajustes de cajas
 4. Estadísticas sencillas
 5. Extras: recordatorios, importar CSV, imágenes y audio en modo niños
