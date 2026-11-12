@@ -1,6 +1,5 @@
 package es.leitner.app.ui.settings
 
-import es.leitner.app.ui.ModeNames
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,11 +26,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import es.leitner.app.R
 import es.leitner.app.data.AppPrefs
 import es.leitner.app.data.BackupManager
+import es.leitner.app.ui.ModeNames
 import es.leitner.core.Mode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,8 +45,8 @@ fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, backup: Backup
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Ajustes de cajas") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("‹ Atrás") } },
+                title = { Text(stringResource(R.string.box_settings_title)) },
+                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.back)) } },
             )
         },
     ) { padding ->
@@ -64,17 +66,17 @@ fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, backup: Backup
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
-                    "Días hasta el siguiente repaso de cada caja. Si aciertas, la tarjeta sube de caja; si fallas, vuelve a la 1.",
+                    stringResource(R.string.box_settings_help),
                     style = MaterialTheme.typography.bodyMedium,
                 )
 
                 state.intervals.forEachIndexed { index, value ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Caja ${index + 1}", Modifier.width(80.dp))
+                        Text(stringResource(R.string.box_n, index + 1), Modifier.width(80.dp))
                         OutlinedTextField(
                             value = value,
                             onValueChange = { viewModel.setInterval(index, it) },
-                            suffix = { Text("días") },
+                            suffix = { Text(stringResource(R.string.days_suffix)) },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1f),
@@ -83,18 +85,18 @@ fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, backup: Backup
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = viewModel::addBox) { Text("+ Caja") }
-                    OutlinedButton(onClick = viewModel::removeBox) { Text("− Caja") }
-                    TextButton(onClick = viewModel::restoreDefaults) { Text("Por defecto") }
+                    OutlinedButton(onClick = viewModel::addBox) { Text(stringResource(R.string.add_box)) }
+                    OutlinedButton(onClick = viewModel::removeBox) { Text(stringResource(R.string.remove_box)) }
+                    TextButton(onClick = viewModel::restoreDefaults) { Text(stringResource(R.string.defaults)) }
                 }
 
                 state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-                if (state.saved) Text("Guardado ✓", color = MaterialTheme.colorScheme.primary)
+                if (state.saved) Text(stringResource(R.string.saved), color = MaterialTheme.colorScheme.primary)
 
-                Button(onClick = viewModel::save, modifier = Modifier.fillMaxWidth()) { Text("Guardar") }
+                Button(onClick = viewModel::save, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.save)) }
 
                 Text(
-                    "Si quitas cajas, las tarjetas de las cajas eliminadas pasan a la última.",
+                    stringResource(R.string.remove_box_help),
                     style = MaterialTheme.typography.bodySmall,
                 )
 

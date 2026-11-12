@@ -1,6 +1,5 @@
 package es.leitner.app.ui.settings
 
-import es.leitner.app.ui.ModeNames
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,10 +16,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import es.leitner.app.R
 import es.leitner.app.data.AppPrefs
+import es.leitner.app.ui.ModeNames
 import es.leitner.app.ui.common.PinDialog
 import es.leitner.core.Pin
 
@@ -32,25 +34,27 @@ fun PinSection(prefs: AppPrefs) {
     val hasPin by prefs.hasPin.collectAsState()
     var step by remember { mutableStateOf(PinStep.NONE) }
     var info by remember { mutableStateOf<String?>(null) }
+    val removedText = stringResource(R.string.pin_removed)
+    val savedText = stringResource(R.string.pin_saved)
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("PIN del modo ${ModeNames.KIDS}", style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.pin_title, ModeNames.KIDS), style = MaterialTheme.typography.titleMedium)
         Text(
             if (hasPin) {
-                "Activado: hace falta para salir del modo ${ModeNames.KIDS} y para borrar mazos en él."
+                stringResource(R.string.pin_on, ModeNames.KIDS)
             } else {
-                "Sin PIN, cualquiera puede salir del modo ${ModeNames.KIDS}."
+                stringResource(R.string.pin_off, ModeNames.KIDS)
             },
             style = MaterialTheme.typography.bodyMedium,
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (hasPin) {
-                OutlinedButton(onClick = { step = PinStep.VERIFY_FOR_CHANGE }) { Text("Cambiar PIN") }
+                OutlinedButton(onClick = { step = PinStep.VERIFY_FOR_CHANGE }) { Text(stringResource(R.string.pin_change)) }
                 TextButton(onClick = { step = PinStep.VERIFY_FOR_REMOVE }) {
-                    Text("Quitar PIN", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.pin_remove), color = MaterialTheme.colorScheme.error)
                 }
             } else {
-                OutlinedButton(onClick = { step = PinStep.NEW }) { Text("Crear PIN") }
+                OutlinedButton(onClick = { step = PinStep.NEW }) { Text(stringResource(R.string.pin_create)) }
             }
         }
         info?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
@@ -59,18 +63,18 @@ fun PinSection(prefs: AppPrefs) {
     when (step) {
         PinStep.NONE -> Unit
         PinStep.VERIFY_FOR_CHANGE -> PinDialog(
-            title = "PIN actual",
+            title = stringResource(R.string.pin_current),
             check = prefs::checkPin,
             onDismiss = { step = PinStep.NONE },
             onSuccess = { step = PinStep.NEW },
         )
         PinStep.VERIFY_FOR_REMOVE -> PinDialog(
-            title = "PIN actual",
+            title = stringResource(R.string.pin_current),
             check = prefs::checkPin,
             onDismiss = { step = PinStep.NONE },
             onSuccess = {
                 prefs.clearPin()
-                info = "PIN quitado"
+                info = removedText
                 step = PinStep.NONE
             },
         )
@@ -78,7 +82,7 @@ fun PinSection(prefs: AppPrefs) {
             onDismiss = { step = PinStep.NONE },
             onSave = {
                 prefs.setPin(it)
-                info = "PIN guardado ✓"
+                info = savedText
                 step = PinStep.NONE
             },
         )
@@ -94,21 +98,21 @@ private fun NewPinDialog(onDismiss: () -> Unit, onSave: (String) -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Nuevo PIN") },
+        title = { Text(stringResource(R.string.pin_new)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                PinField("PIN (4 números)", first) { first = it }
-                PinField("Repite el PIN", second) { second = it }
-                if (mismatch) Text("No coinciden", color = MaterialTheme.colorScheme.error)
+                PinField(stringResource(R.string.pin_4_digits), first) { first = it }
+                PinField(stringResource(R.string.pin_repeat), second) { second = it }
+                if (mismatch) Text(stringResource(R.string.pin_mismatch), color = MaterialTheme.colorScheme.error)
             }
         },
         confirmButton = {
             TextButton(
                 enabled = Pin.isValidFormat(first) && first == second,
                 onClick = { onSave(first) },
-            ) { Text("Guardar") }
+            ) { Text(stringResource(R.string.save)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
 }
 

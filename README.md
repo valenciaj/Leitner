@@ -56,6 +56,11 @@ La CI de GitHub genera el APK de depuración en cada push.
 - **Pegatinas** (logros) por aciertos, rachas y días de estudio. Se ven en 🏆 / Estadísticas y se anuncian al terminar un repaso.
 - **Widget** para la pantalla de inicio con las tarjetas pendientes de hoy. Al tocarlo abre la app.
 
+## Traducciones y accesibilidad
+
+- Todos los textos de la app están en `app/src/main/res/values/strings.xml`. Para otro idioma, copia el fichero a `values-XX/` (p. ej. `values-en/`) y tradúcelo.
+- Imágenes, gráficos, pegatinas y botones de solo icono tienen descripción para el lector de pantalla (TalkBack).
+
 ## Importar CSV
 
 En la pantalla de un mazo: menú ⋮ → **Importar CSV**. Una tarjeta por línea, `pregunta;respuesta`

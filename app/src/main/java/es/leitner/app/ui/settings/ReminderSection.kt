@@ -27,8 +27,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import es.leitner.app.R
 import es.leitner.app.data.AppPrefs
 import es.leitner.app.reminder.ReminderScheduler
 import es.leitner.core.ReminderTime
@@ -51,7 +53,7 @@ fun ReminderSection(prefs: AppPrefs) {
     }
 
     val askPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) apply(true) else info = "Sin permiso de notificaciones no se puede avisar"
+        if (granted) apply(true) else info = context.getString(R.string.reminder_no_permission)
     }
 
     fun turnOn() {
@@ -64,16 +66,16 @@ fun ReminderSection(prefs: AppPrefs) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Recordatorio diario", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.reminder_title), style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "Aviso si hay tarjetas pendientes (de cualquier modo).",
+                    stringResource(R.string.reminder_help),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
             Switch(checked = enabled, onCheckedChange = { if (it) turnOn() else apply(false) })
         }
         if (enabled) {
-            OutlinedButton(onClick = { pickTime = true }) { Text("Hora: ${ReminderTime.format(hour, minute)}") }
+            OutlinedButton(onClick = { pickTime = true }) { Text(stringResource(R.string.reminder_time, ReminderTime.format(hour, minute))) }
         }
         info?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
@@ -82,7 +84,7 @@ fun ReminderSection(prefs: AppPrefs) {
         val state = rememberTimePickerState(initialHour = hour, initialMinute = minute, is24Hour = true)
         AlertDialog(
             onDismissRequest = { pickTime = false },
-            title = { Text("Hora del aviso") },
+            title = { Text(stringResource(R.string.reminder_pick_time)) },
             text = { TimePicker(state = state) },
             confirmButton = {
                 TextButton(onClick = {
@@ -92,9 +94,9 @@ fun ReminderSection(prefs: AppPrefs) {
                     prefs.reminderMinute = minute
                     pickTime = false
                     apply(true)
-                }) { Text("Guardar") }
+                }) { Text(stringResource(R.string.save)) }
             },
-            dismissButton = { TextButton(onClick = { pickTime = false }) { Text("Cancelar") } },
+            dismissButton = { TextButton(onClick = { pickTime = false }) { Text(stringResource(R.string.cancel)) } },
         )
     }
 }

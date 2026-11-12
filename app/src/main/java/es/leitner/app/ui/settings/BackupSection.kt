@@ -1,5 +1,6 @@
 package es.leitner.app.ui.settings
 
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -15,12 +16,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import android.net.Uri
+import es.leitner.app.R
 import es.leitner.app.data.BackupManager
 import es.leitner.app.ui.common.ConfirmDialog
-import kotlinx.coroutines.launch
 import java.time.LocalDate
+import kotlinx.coroutines.launch
 
 /** Exportar e importar todos los datos (mazos, tarjetas, imágenes, audio y estadísticas). */
 @Composable
@@ -38,8 +40,8 @@ fun BackupSection(backup: BackupManager) {
             info = runCatching {
                 context.contentResolver.openOutputStream(uri)!!.use { backup.export(it) }
             }.fold(
-                onSuccess = { "Copia guardada: ${it.decks} mazos, ${it.cards} tarjetas ✓" },
-                onFailure = { "No se pudo guardar la copia" },
+                onSuccess = { context.getString(R.string.backup_saved, it.decks, it.cards) },
+                onFailure = { context.getString(R.string.backup_save_failed) },
             )
             busy = false
         }
@@ -50,29 +52,29 @@ fun BackupSection(backup: BackupManager) {
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Copia de seguridad", style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.backup_title), style = MaterialTheme.typography.titleMedium)
         Text(
-            "Guarda en un fichero todos los mazos, tarjetas, imágenes, audios y estadísticas de los dos modos.",
+            stringResource(R.string.backup_help),
             style = MaterialTheme.typography.bodyMedium,
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(enabled = !busy, onClick = { exportLauncher.launch("leitner-copia-${LocalDate.now()}.zip") }) {
-                Text("Exportar")
+                Text(stringResource(R.string.backup_export))
             }
             OutlinedButton(
                 enabled = !busy,
                 onClick = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream")) },
-            ) { Text("Importar") }
+            ) { Text(stringResource(R.string.backup_import)) }
         }
-        if (busy) Text("Trabajando…")
+        if (busy) Text(stringResource(R.string.working))
         info?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
     }
 
     pendingImport?.let { uri ->
         ConfirmDialog(
-            title = "¿Importar la copia?",
-            message = "Se borrarán todos los datos actuales y se sustituirán por los de la copia.",
-            confirmText = "Importar",
+            title = stringResource(R.string.backup_import_question),
+            message = stringResource(R.string.backup_import_message),
+            confirmText = stringResource(R.string.backup_import),
             onDismiss = { pendingImport = null },
             onConfirm = {
                 pendingImport = null
@@ -81,8 +83,8 @@ fun BackupSection(backup: BackupManager) {
                     info = runCatching {
                         context.contentResolver.openInputStream(uri)!!.use { backup.import(it) }
                     }.fold(
-                        onSuccess = { "Copia importada: ${it.decks} mazos, ${it.cards} tarjetas ✓" },
-                        onFailure = { (it as? BackupManager.InvalidBackupException)?.message ?: "No se pudo importar la copia" },
+                        onSuccess = { context.getString(R.string.backup_imported, it.decks, it.cards) },
+                        onFailure = { (it as? BackupManager.InvalidBackupException)?.message ?: context.getString(R.string.backup_import_failed) },
                     )
                     busy = false
                 }

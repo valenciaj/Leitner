@@ -31,15 +31,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import es.leitner.app.R
 import es.leitner.app.data.CardContent
 import es.leitner.app.data.MediaStorage
 import es.leitner.app.media.AudioPlayer
 import es.leitner.app.media.AudioRecorder
 import es.leitner.app.media.rememberAudioPlayer
-import kotlinx.coroutines.launch
 import java.io.File
+import kotlinx.coroutines.launch
 
 /** Lado de la tarjeta. */
 private enum class Side { FRONT, BACK }
@@ -102,7 +104,7 @@ fun CardEditDialog(
                     created += path
                     if (side == Side.FRONT) imagePath = path else backImagePath = path
                 } else {
-                    message = "No se pudo cargar la imagen"
+                    message = context.getString(R.string.err_image)
                 }
             }
         }
@@ -113,7 +115,7 @@ fun CardEditDialog(
         val file = media.newAudioFile()
         runCatching { recorder.start(file) }
             .onSuccess { recording = side to file; message = null }
-            .onFailure { file.delete(); message = "No se pudo grabar" }
+            .onFailure { file.delete(); message = context.getString(R.string.err_record) }
     }
 
     fun stopRecording() {
@@ -124,19 +126,19 @@ fun CardEditDialog(
             if (side == Side.FRONT) audioPath = file.absolutePath else backAudioPath = file.absolutePath
         } else {
             file.delete()
-            message = "Grabación demasiado corta"
+            message = context.getString(R.string.err_too_short)
         }
     }
 
     val askMic = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) startRecording(recordFor) else message = "Sin permiso de micrófono no se puede grabar"
+        if (granted) startRecording(recordFor) else message = context.getString(R.string.err_mic_permission)
     }
 
     if (confirmDelete && onDelete != null) {
         ConfirmDialog(
-            title = "¿Borrar tarjeta?",
-            message = "No se puede deshacer.",
-            confirmText = "Borrar",
+            title = stringResource(R.string.delete_card_question),
+            message = stringResource(R.string.cannot_undo),
+            confirmText = stringResource(R.string.delete),
             onDismiss = { confirmDelete = false },
             onConfirm = { cleanup(emptySet()); onDelete() },
         )
@@ -190,7 +192,7 @@ fun CardEditDialog(
                 OutlinedTextField(
                     value = front,
                     onValueChange = { front = it },
-                    label = { Text("Pregunta") },
+                    label = { Text(stringResource(R.string.question)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Media(Side.FRONT)
@@ -198,24 +200,24 @@ fun CardEditDialog(
                 OutlinedTextField(
                     value = back,
                     onValueChange = { back = it },
-                    label = { Text("Respuesta") },
+                    label = { Text(stringResource(R.string.answer)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Media(Side.BACK)
 
-                if (recording != null) Text("Grabando…", color = MaterialTheme.colorScheme.error)
+                if (recording != null) Text(stringResource(R.string.recording), color = MaterialTheme.colorScheme.error)
                 message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
 
                 if (offerReverse) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = alsoReversed, onCheckedChange = { alsoReversed = it })
-                        Text("Crear también al revés")
+                        Text(stringResource(R.string.also_reversed))
                     }
                 }
 
                 if (onDelete != null) {
                     TextButton(onClick = { confirmDelete = true }) {
-                        Text("Borrar tarjeta", color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(R.string.delete_card), color = MaterialTheme.colorScheme.error)
                     }
                 }
             }
@@ -228,9 +230,9 @@ fun CardEditDialog(
                     onSave(content, offerReverse && alsoReversed)
                 },
                 enabled = content.isValid && recording == null,
-            ) { Text("Guardar") }
+            ) { Text(stringResource(R.string.save)) }
         },
-        dismissButton = { TextButton(onClick = dismiss) { Text("Cancelar") } },
+        dismissButton = { TextButton(onClick = dismiss) { Text(stringResource(R.string.cancel)) } },
     )
 }
 
@@ -253,25 +255,25 @@ private fun MediaButtons(
         CardImage(it, Modifier.fillMaxWidth().heightIn(max = 180.dp))
     }
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedButton(onClick = onPickImage) { Text(if (imagePath == null) "📷 Imagen" else "📷 Cambiar") }
+        OutlinedButton(onClick = onPickImage) { Text(stringResource(if (imagePath == null) R.string.image else R.string.image_change)) }
         if (imagePath != null) {
-            TextButton(onClick = onRemoveImage) { Text("Quitar imagen") }
+            TextButton(onClick = onRemoveImage) { Text(stringResource(R.string.image_remove)) }
         }
     }
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         if (isRecording) {
             OutlinedButton(onClick = onStopRecording) {
-                Text("⏹ Parar", color = MaterialTheme.colorScheme.error)
+                Text(stringResource(R.string.stop), color = MaterialTheme.colorScheme.error)
             }
         } else {
             OutlinedButton(onClick = onRecord, enabled = !recordingOther) {
-                Text(if (audioPath == null) "🎤 Grabar" else "🎤 Regrabar")
+                Text(stringResource(if (audioPath == null) R.string.record else R.string.rerecord))
             }
             audioPath?.let { path ->
                 OutlinedButton(onClick = { if (player.isPlaying) player.stop() else player.play(path) }) {
-                    Text(if (player.isPlaying) "⏹" else "🔊 Escuchar")
+                    Text(stringResource(if (player.isPlaying) R.string.stop else R.string.listen))
                 }
-                TextButton(onClick = onRemoveAudio) { Text("Quitar audio") }
+                TextButton(onClick = onRemoveAudio) { Text(stringResource(R.string.audio_remove)) }
             }
         }
     }

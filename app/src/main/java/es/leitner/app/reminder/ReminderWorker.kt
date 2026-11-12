@@ -15,6 +15,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import es.leitner.app.LeitnerApp
 import es.leitner.app.MainActivity
+import es.leitner.app.R
 import es.leitner.app.widget.DueWidget
 
 /** Se ejecuta una vez al día: si hay tarjetas pendientes, muestra una notificación. */
@@ -41,7 +42,7 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
 
             val manager = context.getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, "Recordatorio diario", NotificationManager.IMPORTANCE_DEFAULT),
+                NotificationChannel(CHANNEL_ID, context.getString(R.string.notif_channel), NotificationManager.IMPORTANCE_DEFAULT),
             )
             val open = PendingIntent.getActivity(
                 context,
@@ -51,8 +52,8 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
             )
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle("¡Hora de repasar!")
-                .setContentText(if (due == 1) "Tienes 1 tarjeta pendiente" else "Tienes $due tarjetas pendientes")
+                .setContentTitle(context.getString(R.string.notif_title))
+                .setContentText(context.resources.getQuantityString(R.plurals.notif_text, due, due))
                 .setContentIntent(open)
                 .setAutoCancel(true)
                 .build()

@@ -14,11 +14,16 @@ import kotlinx.coroutines.withContext
 
 /** Muestra una imagen guardada en disco, cargándola en segundo plano. */
 @Composable
-fun CardImage(path: String, modifier: Modifier = Modifier, contentScale: ContentScale = ContentScale.Fit) {
+fun CardImage(
+    path: String,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Fit,
+    contentDescription: String? = null,
+) {
     val bitmap by produceState<ImageBitmap?>(initialValue = null, path) {
         value = withContext(Dispatchers.IO) {
             runCatching { BitmapFactory.decodeFile(path)?.asImageBitmap() }.getOrNull()
         }
     }
-    bitmap?.let { Image(bitmap = it, contentDescription = null, modifier = modifier, contentScale = contentScale) }
+    bitmap?.let { Image(bitmap = it, contentDescription = contentDescription, modifier = modifier, contentScale = contentScale) }
 }
