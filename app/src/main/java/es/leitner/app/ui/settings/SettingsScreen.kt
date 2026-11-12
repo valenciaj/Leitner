@@ -98,6 +98,9 @@ fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, onBack: () -> 
 
                 HorizontalDivider()
                 PinSection(prefs)
+
+                HorizontalDivider()
+                ReminderSection(prefs)
             }
         }
     }
