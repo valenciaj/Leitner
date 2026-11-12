@@ -122,6 +122,10 @@ class DeckViewModel(
         viewModelScope.launch { repository.deleteCard(cardId) }
     }
 
+    fun setPaused(paused: Boolean) {
+        viewModelScope.launch { repository.setDeckPaused(deckId, paused) }
+    }
+
     fun rename(name: String) {
         if (name.isBlank()) return
         viewModelScope.launch { repository.renameDeck(deckId, name) }

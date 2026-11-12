@@ -50,6 +50,7 @@ La CI de GitHub genera el APK de depuración en cada push.
 - Pregunta y respuesta pueden llevar texto, imagen y audio.
 - **Crear también al revés** (al crear una tarjeta) o menú ⋮ → **Crear tarjetas al revés** (todo el mazo).
 - Con más de 5 tarjetas aparece un buscador en el mazo.
+- Menú ⋮ → **Pausar mazo**: sus tarjetas dejan de salir y de contar como pendientes hasta que lo reanudes.
 - Menú ⋮ → **Exportar CSV**: guarda las tarjetas con texto en formato `pregunta;respuesta`.
 
 ## Motivación

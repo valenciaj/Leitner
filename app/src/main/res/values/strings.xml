@@ -244,6 +244,10 @@
     <string name="typed_right">✅ ¡Correcto!</string>
     <string name="typed_wrong">❌ Escribiste: %1$s</string>
 
+    <string name="pause_deck">⏸ Pausar mazo</string>
+    <string name="resume_deck">▶ Reanudar mazo</string>
+    <string name="deck_paused">⏸ En pausa · %1$d tarjetas</string>
+
     <!-- Notificación -->
     <string name="notif_channel">Recordatorio diario</string>
     <string name="notif_title">¡Hora de repasar!</string>

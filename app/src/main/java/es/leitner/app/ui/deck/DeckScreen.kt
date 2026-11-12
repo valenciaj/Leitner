@@ -160,6 +160,11 @@ fun DeckScreen(
                                 enabled = cards.isNotEmpty(),
                                 onClick = { menuOpen = false; viewModel.addReversedCards() },
                             )
+                            val paused = deck?.paused == true
+                            DropdownMenuItem(
+                                text = { Text(stringResource(if (paused) R.string.resume_deck else R.string.pause_deck)) },
+                                onClick = { menuOpen = false; viewModel.setPaused(!paused) },
+                            )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.rename_deck)) },
                                 onClick = { menuOpen = false; dialog = DeckDialog.Rename },

@@ -125,7 +125,11 @@ private fun DeckRow(deck: DeckSummary, kids: Boolean, selected: Boolean, onClick
             Column(Modifier.weight(1f)) {
                 Text(deck.name, style = MaterialTheme.typography.titleMedium)
                 Text(
-                    if (kids) stringResource(R.string.deck_summary_kids, deck.dueCards) else stringResource(R.string.deck_summary, deck.dueCards, deck.totalCards),
+                    when {
+                        deck.paused -> stringResource(R.string.deck_paused, deck.totalCards)
+                        kids -> stringResource(R.string.deck_summary_kids, deck.dueCards)
+                        else -> stringResource(R.string.deck_summary, deck.dueCards, deck.totalCards)
+                    },
                     style = MaterialTheme.typography.bodyLarge,
                 )
             }

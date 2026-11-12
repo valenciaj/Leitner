@@ -1,5 +1,6 @@
 package es.leitner.app.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -13,6 +14,9 @@ data class DeckEntity(
     val name: String,
     val mode: Mode,
     val createdAt: Long = System.currentTimeMillis(),
+    /** Mazo en pausa: sus tarjetas no salen en el repaso ni cuentan como pendientes. */
+    @ColumnInfo(defaultValue = "0")
+    val paused: Boolean = false,
 )
 
 /** Tarjeta con su caja actual y la fecha (epochDay) del próximo repaso. */

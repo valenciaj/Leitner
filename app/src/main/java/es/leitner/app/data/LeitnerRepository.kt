@@ -44,6 +44,8 @@ class LeitnerRepository(
 
     fun observeDeck(deckId: Long): Flow<DeckEntity?> = decks.observe(deckId)
 
+    suspend fun setDeckPaused(deckId: Long, paused: Boolean) = decks.setPaused(deckId, paused)
+
     suspend fun renameDeck(deckId: Long, name: String) = decks.rename(deckId, name.trim())
 
     /** Borra el mazo, todas sus tarjetas y sus imágenes y audios. */
