@@ -19,6 +19,8 @@ import es.leitner.app.ui.review.ReviewScreen
 import es.leitner.app.ui.review.ReviewViewModel
 import es.leitner.app.ui.settings.SettingsScreen
 import es.leitner.app.ui.settings.SettingsViewModel
+import es.leitner.app.ui.stats.StatsScreen
+import es.leitner.app.ui.stats.StatsViewModel
 import es.leitner.app.ui.theme.LeitnerTheme
 import es.leitner.core.Mode
 
@@ -51,6 +53,7 @@ class MainActivity : ComponentActivity() {
                             onChangeMode = { nav.popBackStack("mode", inclusive = false) },
                             onOpenDeck = { deckId -> nav.navigate("deck/${mode.name}/$deckId") },
                             onReview = { deckId -> nav.navigate("review/${mode.name}/$deckId") },
+                            onOpenStats = { nav.navigate("stats/${mode.name}") },
                         )
                     }
                 }
@@ -80,6 +83,16 @@ class MainActivity : ComponentActivity() {
                     val vm: ReviewViewModel = viewModel(factory = ReviewViewModel.Factory(repository, mode, deckId))
                     LeitnerTheme(mode) {
                         ReviewScreen(viewModel = vm, onClose = { nav.popBackStack() })
+                    }
+                }
+                composable(
+                    "stats/{mode}",
+                    arguments = listOf(navArgument("mode") { type = NavType.StringType }),
+                ) { entry ->
+                    val mode = Mode.valueOf(entry.arguments?.getString("mode") ?: Mode.NORMAL.name)
+                    val vm: StatsViewModel = viewModel(key = "stats-${mode.name}", factory = StatsViewModel.Factory(repository, mode))
+                    LeitnerTheme(mode) {
+                        StatsScreen(viewModel = vm, onBack = { nav.popBackStack() })
                     }
                 }
                 composable("settings") {
