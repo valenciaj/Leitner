@@ -34,4 +34,10 @@ La CI de GitHub genera el APK de depuración en cada push.
 2. ✅ Crear y editar mazos y tarjetas
 3. ✅ Pantalla de repaso diario y ajustes de cajas
 4. ✅ Estadísticas sencillas
-5. Extras: ✅ imágenes y audio · ✅ PIN modo niños · ✅ recordatorio diario · importar CSV
+5. Extras: ✅ imágenes y audio · ✅ PIN modo niños · ✅ recordatorio diario · ✅ importar CSV
+
+## Importar CSV
+
+En la pantalla de un mazo: menú ⋮ → **Importar CSV**. Una tarjeta por línea, `pregunta;respuesta`
+(también vale coma o tabulador). La primera línea se salta si es una cabecera (`pregunta;respuesta`).
+Se aceptan comillas para textos con separadores o saltos de línea, y ficheros guardados desde Excel.

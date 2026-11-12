@@ -73,6 +73,22 @@ class LeitnerRepository(
         )
     }
 
+    /** Añade muchas tarjetas de texto de golpe (importar CSV). */
+    suspend fun addCards(deckId: Long, items: List<Pair<String, String>>) {
+        val progress = LeitnerScheduler.newCard(today())
+        cards.insertAll(
+            items.map { (front, back) ->
+                CardEntity(
+                    deckId = deckId,
+                    front = front,
+                    back = back,
+                    box = progress.box,
+                    nextReviewDay = progress.nextReviewDay,
+                )
+            },
+        )
+    }
+
     fun observeCards(deckId: Long): Flow<List<CardEntity>> = cards.observeByDeck(deckId)
 
     suspend fun card(cardId: Long): CardEntity? = cards.get(cardId)

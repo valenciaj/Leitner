@@ -1,5 +1,7 @@
 package es.leitner.app.ui.deck
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,11 +25,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.leitner.app.data.CardEntity
@@ -46,6 +53,9 @@ import es.leitner.app.ui.common.ConfirmDialog
 import es.leitner.app.ui.common.PinDialog
 import es.leitner.app.ui.common.TextInputDialog
 import es.leitner.core.Mode
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** Qué diálogo está abierto. */
 private sealed interface DeckDialog {
@@ -70,6 +80,28 @@ fun DeckScreen(
     val config by viewModel.config.collectAsStateWithLifecycle()
     var dialog by remember { mutableStateOf<DeckDialog?>(null) }
     var menuOpen by remember { mutableStateOf(false) }
+    val message by viewModel.message.collectAsStateWithLifecycle()
+    val snackbar = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val importCsv = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            scope.launch {
+                val text = withContext(Dispatchers.IO) {
+                    runCatching {
+                        context.contentResolver.openInputStream(uri)?.use { it.readBytes().toString(Charsets.UTF_8) }
+                    }.getOrNull()
+                }
+                viewModel.importCsv(text)
+            }
+        }
+    }
+    LaunchedEffect(message) {
+        message?.let {
+            snackbar.showSnackbar(it)
+            viewModel.clearMessage()
+        }
+    }
     val kids = viewModel.mode == Mode.KIDS
 
     Scaffold(
@@ -81,6 +113,15 @@ fun DeckScreen(
                     Box {
                         TextButton(onClick = { menuOpen = true }) { Text("⋮") }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                            DropdownMenuItem(
+                                text = { Text("Importar CSV") },
+                                onClick = {
+                                    menuOpen = false
+                                    importCsv.launch(
+                                        arrayOf("text/*", "application/csv", "application/vnd.ms-excel", "application/octet-stream"),
+                                    )
+                                },
+                            )
                             DropdownMenuItem(
                                 text = { Text("Renombrar mazo") },
                                 onClick = { menuOpen = false; dialog = DeckDialog.Rename },
@@ -100,6 +141,7 @@ fun DeckScreen(
                 },
             )
         },
+        snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = { dialog = DeckDialog.NewCard }) {
                 Text(if (kids) "➕ Nueva tarjeta" else "Nueva tarjeta")
