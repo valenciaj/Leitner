@@ -43,6 +43,7 @@ import es.leitner.app.ui.common.CardContent
 import es.leitner.app.ui.common.CardEditDialog
 import es.leitner.app.ui.common.CardImage
 import es.leitner.app.ui.common.ConfirmDialog
+import es.leitner.app.ui.common.PinDialog
 import es.leitner.app.ui.common.TextInputDialog
 import es.leitner.core.Mode
 
@@ -52,11 +53,18 @@ private sealed interface DeckDialog {
     data class EditCard(val card: CardEntity) : DeckDialog
     data object Rename : DeckDialog
     data object DeleteDeck : DeckDialog
+    data object PinForDelete : DeckDialog
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DeckScreen(viewModel: DeckViewModel, media: MediaStorage, onBack: () -> Unit) {
+fun DeckScreen(
+    viewModel: DeckViewModel,
+    media: MediaStorage,
+    /** Comprueba el PIN; null si no hay PIN configurado. */
+    pinCheck: ((String) -> Boolean)?,
+    onBack: () -> Unit,
+) {
     val deck by viewModel.deck.collectAsStateWithLifecycle()
     val cards by viewModel.cards.collectAsStateWithLifecycle()
     val config by viewModel.config.collectAsStateWithLifecycle()
@@ -77,11 +85,14 @@ fun DeckScreen(viewModel: DeckViewModel, media: MediaStorage, onBack: () -> Unit
                                 text = { Text("Renombrar mazo") },
                                 onClick = { menuOpen = false; dialog = DeckDialog.Rename },
                             )
-                            // En modo niños no se pueden borrar mazos (más adelante, con PIN).
-                            if (!kids) {
+                            // En modo niños solo se puede borrar un mazo con PIN.
+                            if (!kids || pinCheck != null) {
                                 DropdownMenuItem(
                                     text = { Text("Borrar mazo", color = MaterialTheme.colorScheme.error) },
-                                    onClick = { menuOpen = false; dialog = DeckDialog.DeleteDeck },
+                                    onClick = {
+                                        menuOpen = false
+                                        dialog = if (kids) DeckDialog.PinForDelete else DeckDialog.DeleteDeck
+                                    },
                                 )
                             }
                         }
@@ -142,6 +153,11 @@ fun DeckScreen(viewModel: DeckViewModel, media: MediaStorage, onBack: () -> Unit
             initial = deck?.name.orEmpty(),
             onDismiss = { dialog = null },
             onConfirm = { viewModel.rename(it); dialog = null },
+        )
+        DeckDialog.PinForDelete -> PinDialog(
+            check = pinCheck ?: { false },
+            onDismiss = { dialog = null },
+            onSuccess = { dialog = DeckDialog.DeleteDeck },
         )
         DeckDialog.DeleteDeck -> ConfirmDialog(
             title = "¿Borrar el mazo?",

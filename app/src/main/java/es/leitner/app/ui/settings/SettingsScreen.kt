@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -28,11 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import es.leitner.app.data.AppPrefs
 import es.leitner.core.Mode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
+fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, onBack: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val modes = listOf(Mode.KIDS, Mode.NORMAL)
 
@@ -93,6 +95,9 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit) {
                     "Si quitas cajas, las tarjetas de las cajas eliminadas pasan a la última.",
                     style = MaterialTheme.typography.bodySmall,
                 )
+
+                HorizontalDivider()
+                PinSection(prefs)
             }
         }
     }
