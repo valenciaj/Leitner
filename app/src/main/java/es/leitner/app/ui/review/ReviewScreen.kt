@@ -225,6 +225,17 @@ private fun Summary(state: ReviewUiState, kids: Boolean, onClose: () -> Unit) {
             Text("Repaso terminado", style = MaterialTheme.typography.titleLarge)
             Text("Aciertos: ${state.correct} · Fallos: ${state.wrong}", style = MaterialTheme.typography.bodyLarge)
         }
+        state.newAchievements.forEach { a ->
+            Card {
+                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(a.emoji, fontSize = if (kids) 48.sp else 32.sp)
+                    Column(Modifier.padding(start = 12.dp)) {
+                        Text(if (kids) "¡Nueva pegatina!" else "Nuevo logro", style = MaterialTheme.typography.bodyMedium)
+                        Text(a.title, style = MaterialTheme.typography.titleMedium)
+                    }
+                }
+            }
+        }
         Button(onClick = onClose, modifier = Modifier.height(if (kids) 72.dp else 48.dp)) { Text("Volver") }
     }
 }

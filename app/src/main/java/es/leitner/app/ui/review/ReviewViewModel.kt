@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import es.leitner.app.data.AnswerRecord
 import es.leitner.app.data.CardEntity
 import es.leitner.app.data.LeitnerRepository
+import es.leitner.core.Achievement
 import es.leitner.core.Mode
 import es.leitner.core.ReviewSession
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +30,8 @@ data class ReviewUiState(
     val correct: Int = 0,
     val wrong: Int = 0,
     val stars: Int = 0,
+    /** Pegatinas ganadas en esta sesión. */
+    val newAchievements: List<Achievement> = emptyList(),
 )
 
 class ReviewViewModel(
@@ -45,9 +48,12 @@ class ReviewViewModel(
     /** Respuestas guardadas en la base de datos, para poder deshacerlas (solo primeros intentos). */
     private val saved = ArrayDeque<AnswerRecord>()
     private var busy = false
+    /** Pegatinas que ya había al empezar. */
+    private var achievementsBefore: Set<Achievement> = emptySet()
 
     init {
         viewModelScope.launch {
+            achievementsBefore = repository.achievements(mode)
             val due = ReviewSession.order(repository.dueCards(mode, deckId), box = { it.box })
             cards = due.associateBy { it.id }
             val limit = if (mode == Mode.KIDS) ReviewSession.KIDS_SESSION_LIMIT else null
@@ -70,6 +76,10 @@ class ReviewViewModel(
                 repository.answer(step.cardId, mode, correct)?.let(saved::addLast)
             }
             publish(revealed = false)
+            if (session.isFinished) {
+                val earned = repository.achievements(mode) - achievementsBefore
+                _state.value = _state.value.copy(newAchievements = Achievement.entries.filter { it in earned })
+            }
             busy = false
         }
     }

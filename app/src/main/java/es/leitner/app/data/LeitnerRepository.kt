@@ -1,11 +1,14 @@
 package es.leitner.app.data
 
 import androidx.room.withTransaction
+import es.leitner.core.Achievement
+import es.leitner.core.Achievements
 import es.leitner.core.CardProgress
 import es.leitner.core.LeitnerConfig
 import es.leitner.core.LeitnerScheduler
 import es.leitner.core.Mode
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
@@ -183,6 +186,16 @@ class LeitnerRepository(
         stats.observeActivity(mode, today() - (days - 1))
 
     fun observeReviewDays(mode: Mode): Flow<List<Long>> = stats.observeReviewDays(mode)
+
+    // ---- Pegatinas ----
+
+    fun observeAchievements(mode: Mode): Flow<Set<Achievement>> =
+        combine(stats.observeTotalCorrect(mode), stats.observeReviewDays(mode)) { correct, days ->
+            Achievements.earned(Achievements.Progress(correct, days.toSet()))
+        }
+
+    suspend fun achievements(mode: Mode): Set<Achievement> =
+        Achievements.earned(Achievements.Progress(stats.totalCorrect(mode), stats.reviewDays(mode).toSet()))
 
     companion object {
         /** deckId especial para repasar todos los mazos de un modo. */

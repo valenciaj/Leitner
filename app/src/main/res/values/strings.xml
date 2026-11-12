@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Leitner</string>
+    <string name="widget_description">Tarjetas pendientes de hoy</string>
+    <string name="widget_label_one">tarjeta para hoy</string>
+    <string name="widget_label_many">tarjetas para hoy</string>
+    <string name="widget_label_none">¡Todo repasado! 🎉</string>
 </resources>

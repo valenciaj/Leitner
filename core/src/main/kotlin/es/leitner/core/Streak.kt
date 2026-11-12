@@ -20,4 +20,16 @@ object Streak {
         }
         return count
     }
+
+    /** La racha más larga de toda la historia. */
+    fun longest(reviewDays: Set<Long>): Int {
+        var best = 0
+        for (day in reviewDays) {
+            if ((day - 1) in reviewDays) continue // no es el inicio de una racha
+            var length = 0
+            while ((day + length) in reviewDays) length++
+            if (length > best) best = length
+        }
+        return best
+    }
 }
