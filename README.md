@@ -41,3 +41,26 @@ La CI de GitHub genera el APK de depuración en cada push.
 En la pantalla de un mazo: menú ⋮ → **Importar CSV**. Una tarjeta por línea, `pregunta;respuesta`
 (también vale coma o tabulador). La primera línea se salta si es una cabecera (`pregunta;respuesta`).
 Se aceptan comillas para textos con separadores o saltos de línea, y ficheros guardados desde Excel.
+
+## Copia de seguridad
+
+Ajustes → **Copia de seguridad**: *Exportar* guarda un `.zip` con todos los mazos, tarjetas, imágenes,
+audios, ajustes de cajas y estadísticas de los dos modos. *Importar* sustituye todos los datos actuales
+por los de la copia (pide confirmación).
+
+## Publicar (APK firmado)
+
+Solo hay que hacerlo una vez:
+
+1. Crear la clave (guárdala bien: sin ella no se pueden publicar actualizaciones):
+   ```
+   keytool -genkeypair -v -keystore leitner.jks -alias leitner -keyalg RSA -keysize 2048 -validity 10000
+   ```
+2. En GitHub → Settings → Secrets and variables → Actions, crear estos secretos:
+   - `LEITNER_KEYSTORE_BASE64`: el resultado de `base64 -w0 leitner.jks`
+   - `LEITNER_KEYSTORE_PASSWORD`: la contraseña del keystore
+   - `LEITNER_KEY_ALIAS`: `leitner`
+   - `LEITNER_KEY_PASSWORD`: la contraseña de la clave
+
+Para sacar una versión: crear una etiqueta `v1.0.0` (o lanzar el workflow **Release** a mano).
+El APK y el AAB (para Google Play) aparecen en GitHub Releases.

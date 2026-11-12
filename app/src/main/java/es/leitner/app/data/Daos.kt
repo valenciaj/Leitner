@@ -111,6 +111,46 @@ interface BoxSettingsDao {
     suspend fun upsert(settings: BoxSettingsEntity)
 }
 
+/** Lectura y escritura masiva para las copias de seguridad. */
+@Dao
+interface BackupDao {
+    @Query("SELECT * FROM decks ORDER BY id")
+    suspend fun decks(): List<DeckEntity>
+
+    @Query("SELECT * FROM cards ORDER BY id")
+    suspend fun cards(): List<CardEntity>
+
+    @Query("SELECT * FROM box_settings")
+    suspend fun settings(): List<BoxSettingsEntity>
+
+    @Query("SELECT * FROM review_log ORDER BY id")
+    suspend fun logs(): List<ReviewLogEntity>
+
+    @Insert
+    suspend fun insertDecks(decks: List<DeckEntity>)
+
+    @Insert
+    suspend fun insertCards(cards: List<CardEntity>)
+
+    @Insert
+    suspend fun insertSettings(settings: List<BoxSettingsEntity>)
+
+    @Insert
+    suspend fun insertLogs(logs: List<ReviewLogEntity>)
+
+    @Query("DELETE FROM review_log")
+    suspend fun clearLogs()
+
+    @Query("DELETE FROM cards")
+    suspend fun clearCards()
+
+    @Query("DELETE FROM decks")
+    suspend fun clearDecks()
+
+    @Query("DELETE FROM box_settings")
+    suspend fun clearSettings()
+}
+
 data class BoxCount(val box: Int, val count: Int)
 
 data class DayActivity(val day: Long, val correct: Int, val total: Int)

@@ -13,13 +13,29 @@ android {
         applicationId = "es.leitner.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        // En la CI de release se pasan desde la etiqueta (v1.2.3) y el número de ejecución.
+        versionCode = System.getenv("LEITNER_VERSION_CODE")?.toIntOrNull() ?: 1
+        versionName = System.getenv("LEITNER_VERSION_NAME") ?: "0.1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // Firma de la versión release: solo si están las variables de entorno (en GitHub, los secretos).
+    val keystorePath = System.getenv("LEITNER_KEYSTORE_FILE")
+    signingConfigs {
+        if (keystorePath != null) {
+            create("release") {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("LEITNER_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("LEITNER_KEY_ALIAS")
+                keyPassword = System.getenv("LEITNER_KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            if (keystorePath != null) signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -61,4 +77,12 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
 
     testImplementation(libs.junit)
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

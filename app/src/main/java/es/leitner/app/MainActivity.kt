@@ -134,7 +134,7 @@ class MainActivity : ComponentActivity() {
                 composable("settings") {
                     val vm: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory(repository))
                     LeitnerTheme {
-                        SettingsScreen(viewModel = vm, prefs = prefs, onBack = { nav.popBackStack() })
+                        SettingsScreen(viewModel = vm, prefs = prefs, backup = app.backup, onBack = { nav.popBackStack() })
                     }
                 }
             }

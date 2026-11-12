@@ -30,11 +30,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.leitner.app.data.AppPrefs
+import es.leitner.app.data.BackupManager
 import es.leitner.core.Mode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, onBack: () -> Unit) {
+fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, backup: BackupManager, onBack: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val modes = listOf(Mode.KIDS, Mode.NORMAL)
 
@@ -101,6 +102,9 @@ fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, onBack: () -> 
 
                 HorizontalDivider()
                 ReminderSection(prefs)
+
+                HorizontalDivider()
+                BackupSection(backup)
             }
         }
     }

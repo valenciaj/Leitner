@@ -18,6 +18,9 @@ class MediaStorage(context: Context) {
     private val appContext = context.applicationContext
     private val dir = File(appContext.filesDir, "media").apply { mkdirs() }
 
+    /** Carpeta donde viven las imágenes y audios. */
+    val directory: File get() = dir
+
     /** Fichero nuevo y vacío para grabar audio. */
     fun newAudioFile(): File = File(dir, "${UUID.randomUUID()}.m4a")
 
