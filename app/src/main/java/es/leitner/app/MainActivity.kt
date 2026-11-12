@@ -10,6 +10,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import es.leitner.app.ui.deck.DeckScreen
+import es.leitner.app.ui.deck.DeckViewModel
 import es.leitner.app.ui.home.HomeScreen
 import es.leitner.app.ui.home.HomeViewModel
 import es.leitner.app.ui.mode.ModeSelectScreen
@@ -37,7 +39,25 @@ class MainActivity : ComponentActivity() {
                     val mode = Mode.valueOf(entry.arguments?.getString("mode") ?: Mode.NORMAL.name)
                     val vm: HomeViewModel = viewModel(key = mode.name, factory = HomeViewModel.Factory(repository, mode))
                     LeitnerTheme(mode) {
-                        HomeScreen(viewModel = vm, onChangeMode = { nav.popBackStack("mode", inclusive = false) })
+                        HomeScreen(
+                            viewModel = vm,
+                            onChangeMode = { nav.popBackStack("mode", inclusive = false) },
+                            onOpenDeck = { deckId -> nav.navigate("deck/${mode.name}/$deckId") },
+                        )
+                    }
+                }
+                composable(
+                    "deck/{mode}/{deckId}",
+                    arguments = listOf(
+                        navArgument("mode") { type = NavType.StringType },
+                        navArgument("deckId") { type = NavType.LongType },
+                    ),
+                ) { entry ->
+                    val mode = Mode.valueOf(entry.arguments?.getString("mode") ?: Mode.NORMAL.name)
+                    val deckId = entry.arguments?.getLong("deckId") ?: 0L
+                    val vm: DeckViewModel = viewModel(factory = DeckViewModel.Factory(repository, mode, deckId))
+                    LeitnerTheme(mode) {
+                        DeckScreen(viewModel = vm, onBack = { nav.popBackStack() })
                     }
                 }
             }
