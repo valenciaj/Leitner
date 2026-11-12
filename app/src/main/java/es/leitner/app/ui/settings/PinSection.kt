@@ -1,5 +1,6 @@
 package es.leitner.app.ui.settings
 
+import es.leitner.app.ui.ModeNames
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,12 +34,12 @@ fun PinSection(prefs: AppPrefs) {
     var info by remember { mutableStateOf<String?>(null) }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("PIN del modo niños", style = MaterialTheme.typography.titleMedium)
+        Text("PIN del modo ${ModeNames.KIDS}", style = MaterialTheme.typography.titleMedium)
         Text(
             if (hasPin) {
-                "Activado: hace falta para salir del modo niños y para borrar mazos en él."
+                "Activado: hace falta para salir del modo ${ModeNames.KIDS} y para borrar mazos en él."
             } else {
-                "Sin PIN, cualquiera puede salir del modo niños."
+                "Sin PIN, cualquiera puede salir del modo ${ModeNames.KIDS}."
             },
             style = MaterialTheme.typography.bodyMedium,
         )

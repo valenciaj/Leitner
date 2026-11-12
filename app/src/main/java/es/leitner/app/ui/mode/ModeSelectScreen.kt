@@ -1,5 +1,6 @@
 package es.leitner.app.ui.mode
 
+import es.leitner.app.ui.ModeNames
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,14 +37,14 @@ fun ModeSelectScreen(onModeSelected: (Mode) -> Unit, onOpenSettings: () -> Unit)
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF7043)),
                 modifier = Modifier.fillMaxWidth().height(120.dp),
             ) {
-                Text("🧒  Modo niños", fontSize = 28.sp)
+                Text("🧒  ${ModeNames.KIDS}", fontSize = 28.sp)
             }
 
             OutlinedButton(
                 onClick = { onModeSelected(Mode.NORMAL) },
                 modifier = Modifier.fillMaxWidth().height(72.dp),
             ) {
-                Text("Modo normal", fontSize = 20.sp)
+                Text(ModeNames.NORMAL, fontSize = 20.sp)
             }
 
             TextButton(onClick = onOpenSettings) { Text("⚙ Ajustes de cajas") }

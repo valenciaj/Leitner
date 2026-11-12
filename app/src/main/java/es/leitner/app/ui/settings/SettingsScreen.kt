@@ -1,5 +1,6 @@
 package es.leitner.app.ui.settings
 
+import es.leitner.app.ui.ModeNames
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -53,7 +54,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, backup: Backup
                     Tab(
                         selected = state.mode == mode,
                         onClick = { viewModel.selectMode(mode) },
-                        text = { Text(if (mode == Mode.KIDS) "Modo niños" else "Modo normal") },
+                        text = { Text(ModeNames.of(mode)) },
                     )
                 }
             }

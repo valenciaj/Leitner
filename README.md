@@ -10,8 +10,8 @@ App Android para estudiar con la **caja de Leitner** (repetición espaciada con 
 
 ## Modos
 
-- **Modo niños**: colores vivos, textos grandes, 3 cajas por defecto (1, 2, 4 días).
-- **Modo normal**: diseño sobrio, 5 cajas por defecto.
+- **Peques** (modo niños): colores vivos, textos grandes, 3 cajas por defecto (1, 2, 4 días).
+- **Clásico** (modo normal): diseño sobrio, 5 cajas por defecto.
 
 Cada modo tiene sus propios mazos y su propia configuración.
 
