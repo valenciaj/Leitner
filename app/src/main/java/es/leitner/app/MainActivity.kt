@@ -15,6 +15,10 @@ import es.leitner.app.ui.deck.DeckViewModel
 import es.leitner.app.ui.home.HomeScreen
 import es.leitner.app.ui.home.HomeViewModel
 import es.leitner.app.ui.mode.ModeSelectScreen
+import es.leitner.app.ui.review.ReviewScreen
+import es.leitner.app.ui.review.ReviewViewModel
+import es.leitner.app.ui.settings.SettingsScreen
+import es.leitner.app.ui.settings.SettingsViewModel
 import es.leitner.app.ui.theme.LeitnerTheme
 import es.leitner.core.Mode
 
@@ -29,7 +33,10 @@ class MainActivity : ComponentActivity() {
             NavHost(navController = nav, startDestination = "mode") {
                 composable("mode") {
                     LeitnerTheme {
-                        ModeSelectScreen(onModeSelected = { mode -> nav.navigate("home/${mode.name}") })
+                        ModeSelectScreen(
+                            onModeSelected = { mode -> nav.navigate("home/${mode.name}") },
+                            onOpenSettings = { nav.navigate("settings") },
+                        )
                     }
                 }
                 composable(
@@ -43,6 +50,7 @@ class MainActivity : ComponentActivity() {
                             viewModel = vm,
                             onChangeMode = { nav.popBackStack("mode", inclusive = false) },
                             onOpenDeck = { deckId -> nav.navigate("deck/${mode.name}/$deckId") },
+                            onReview = { deckId -> nav.navigate("review/${mode.name}/$deckId") },
                         )
                     }
                 }
@@ -58,6 +66,26 @@ class MainActivity : ComponentActivity() {
                     val vm: DeckViewModel = viewModel(factory = DeckViewModel.Factory(repository, mode, deckId))
                     LeitnerTheme(mode) {
                         DeckScreen(viewModel = vm, onBack = { nav.popBackStack() })
+                    }
+                }
+                composable(
+                    "review/{mode}/{deckId}",
+                    arguments = listOf(
+                        navArgument("mode") { type = NavType.StringType },
+                        navArgument("deckId") { type = NavType.LongType },
+                    ),
+                ) { entry ->
+                    val mode = Mode.valueOf(entry.arguments?.getString("mode") ?: Mode.NORMAL.name)
+                    val deckId = entry.arguments?.getLong("deckId") ?: 0L
+                    val vm: ReviewViewModel = viewModel(factory = ReviewViewModel.Factory(repository, mode, deckId))
+                    LeitnerTheme(mode) {
+                        ReviewScreen(viewModel = vm, onClose = { nav.popBackStack() })
+                    }
+                }
+                composable("settings") {
+                    val vm: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory(repository))
+                    LeitnerTheme {
+                        SettingsScreen(viewModel = vm, onBack = { nav.popBackStack() })
                     }
                 }
             }

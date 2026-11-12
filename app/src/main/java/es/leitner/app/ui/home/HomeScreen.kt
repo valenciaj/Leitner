@@ -4,11 +4,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -32,7 +34,12 @@ import es.leitner.core.Mode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, onChangeMode: () -> Unit, onOpenDeck: (Long) -> Unit) {
+fun HomeScreen(
+    viewModel: HomeViewModel,
+    onChangeMode: () -> Unit,
+    onOpenDeck: (Long) -> Unit,
+    onReview: (Long) -> Unit,
+) {
     val decks by viewModel.decks.collectAsStateWithLifecycle()
     var showDialog by remember { mutableStateOf(false) }
     val kids = viewModel.mode == Mode.KIDS
@@ -63,7 +70,7 @@ fun HomeScreen(viewModel: HomeViewModel, onChangeMode: () -> Unit, onOpenDeck: (
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                items(decks, key = { it.id }) { deck -> DeckRow(deck, kids, onClick = { onOpenDeck(deck.id) }) }
+                items(decks, key = { it.id }) { deck -> DeckRow(deck, kids, onClick = { onOpenDeck(deck.id) }, onReview = { onReview(deck.id) }) }
             }
         }
     }
@@ -82,14 +89,19 @@ fun HomeScreen(viewModel: HomeViewModel, onChangeMode: () -> Unit, onOpenDeck: (
 }
 
 @Composable
-private fun DeckRow(deck: DeckSummary, kids: Boolean, onClick: () -> Unit) {
+private fun DeckRow(deck: DeckSummary, kids: Boolean, onClick: () -> Unit, onReview: () -> Unit) {
     Card(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
-        Column(Modifier.padding(if (kids) 24.dp else 16.dp)) {
-            Text(deck.name, style = MaterialTheme.typography.titleMedium)
-            Text(
-                if (kids) "${deck.dueCards} para hoy ⭐" else "${deck.dueCards} pendientes · ${deck.totalCards} tarjetas",
-                style = MaterialTheme.typography.bodyLarge,
-            )
+        Row(Modifier.padding(if (kids) 24.dp else 16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(deck.name, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    if (kids) "${deck.dueCards} para hoy ⭐" else "${deck.dueCards} pendientes · ${deck.totalCards} tarjetas",
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
+            if (deck.dueCards > 0) {
+                Button(onClick = onReview) { Text(if (kids) "▶ Jugar" else "Repasar") }
+            }
         }
     }
 }
