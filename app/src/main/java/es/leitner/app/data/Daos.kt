@@ -89,6 +89,19 @@ interface CardDao {
     @Query("SELECT * FROM cards WHERE deckId = :deckId AND nextReviewDay <= :today ORDER BY box, nextReviewDay")
     suspend fun dueCards(deckId: Long, today: Long): List<CardEntity>
 
+    /** Pendientes de todos los mazos de un modo. */
+    @Query(
+        """
+        SELECT c.* FROM cards c JOIN decks d ON c.deckId = d.id
+        WHERE d.mode = :mode AND c.nextReviewDay <= :today
+        ORDER BY c.box, c.nextReviewDay
+        """,
+    )
+    suspend fun dueCardsOfMode(mode: Mode, today: Long): List<CardEntity>
+
+    @Query("UPDATE cards SET box = :box, nextReviewDay = :nextReviewDay WHERE id = :id")
+    suspend fun setProgress(id: Long, box: Int, nextReviewDay: Long)
+
     /** Al reducir el número de cajas, mueve a la última caja las tarjetas que se han quedado fuera. */
     @Query(
         """
@@ -158,7 +171,10 @@ data class DayActivity(val day: Long, val correct: Int, val total: Int)
 @Dao
 interface StatsDao {
     @Insert
-    suspend fun log(entry: ReviewLogEntity)
+    suspend fun log(entry: ReviewLogEntity): Long
+
+    @Query("DELETE FROM review_log WHERE id = :id")
+    suspend fun deleteLog(id: Long)
 
     @Query(
         """

@@ -108,21 +108,30 @@ class LeitnerRepository(
         old.audioPath?.let(media::delete)
     }
 
-    suspend fun dueCards(deckId: Long): List<CardEntity> = cards.dueCards(deckId, today())
+    /** Pendientes de hoy de un mazo, o de todos los mazos del modo si [deckId] es [ALL_DECKS]. */
+    suspend fun dueCards(mode: Mode, deckId: Long): List<CardEntity> =
+        if (deckId == ALL_DECKS) cards.dueCardsOfMode(mode, today()) else cards.dueCards(deckId, today())
 
-    /** Registra la respuesta a una tarjeta y la mueve de caja. */
-    suspend fun answer(cardId: Long, mode: Mode, correct: Boolean) {
-        val card = cards.get(cardId) ?: return
+    /** Registra la respuesta a una tarjeta y la mueve de caja. Devuelve lo necesario para deshacerla. */
+    suspend fun answer(cardId: Long, mode: Mode, correct: Boolean): AnswerRecord? {
+        val card = cards.get(cardId) ?: return null
         val result = LeitnerScheduler.answer(
             progress = CardProgress(card.box, card.nextReviewDay),
             correct = correct,
             today = today(),
             config = config(mode),
         )
-        db.withTransaction {
+        return db.withTransaction {
             cards.update(card.copy(box = result.box, nextReviewDay = result.nextReviewDay))
-            stats.log(ReviewLogEntity(cardId = card.id, deckId = card.deckId, day = today(), correct = correct))
+            val logId = stats.log(ReviewLogEntity(cardId = card.id, deckId = card.deckId, day = today(), correct = correct))
+            AnswerRecord(card.id, card.box, card.nextReviewDay, logId)
         }
+    }
+
+    /** Deshace una respuesta: devuelve la tarjeta a su caja y borra el registro. */
+    suspend fun undoAnswer(record: AnswerRecord) = db.withTransaction {
+        cards.setProgress(record.cardId, record.previousBox, record.previousNextReviewDay)
+        stats.deleteLog(record.logId)
     }
 
     // ---- Estadísticas ----
@@ -142,4 +151,17 @@ class LeitnerRepository(
         stats.observeActivity(mode, today() - (days - 1))
 
     fun observeReviewDays(mode: Mode): Flow<List<Long>> = stats.observeReviewDays(mode)
+
+    companion object {
+        /** deckId especial para repasar todos los mazos de un modo. */
+        const val ALL_DECKS = 0L
+    }
 }
+
+/** Estado de una tarjeta antes de responderla, para poder deshacer. */
+data class AnswerRecord(
+    val cardId: Long,
+    val previousBox: Int,
+    val previousNextReviewDay: Long,
+    val logId: Long,
+)

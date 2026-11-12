@@ -36,6 +36,14 @@ La CI de GitHub genera el APK de depuración en cada push.
 4. ✅ Estadísticas sencillas
 5. Extras: ✅ imágenes y audio · ✅ PIN modo niños · ✅ recordatorio diario · ✅ importar CSV
 
+## Repaso
+
+- Las tarjetas salen por caja (primero las de la caja 1) y al azar dentro de cada caja.
+- Las falladas se repiten al final de la sesión hasta acertarlas. Solo cuenta el primer intento.
+- **↶ Deshacer** anula la última respuesta.
+- Con varios mazos pendientes aparece **Repasar todo**.
+- **🗣 Leer** lee la tarjeta en voz alta. En Peques se lee sola.
+
 ## Importar CSV
 
 En la pantalla de un mazo: menú ⋮ → **Importar CSV**. Una tarjeta por línea, `pregunta;respuesta`
