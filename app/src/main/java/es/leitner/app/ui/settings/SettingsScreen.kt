@@ -113,6 +113,9 @@ fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, backup: Backup
                 )
 
                 HorizontalDivider()
+                DailyGoalSection(prefs, state.mode)
+
+                HorizontalDivider()
                 ThemeSection(prefs)
 
                 HorizontalDivider()

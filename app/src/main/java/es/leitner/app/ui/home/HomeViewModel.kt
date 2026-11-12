@@ -8,6 +8,7 @@ import es.leitner.app.data.LeitnerRepository
 import es.leitner.core.Mode
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -18,6 +19,11 @@ class HomeViewModel(
 
     val decks: StateFlow<List<DeckSummary>> = repository.observeDecks(mode)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** Tarjetas repasadas hoy (primeros intentos; la práctica no cuenta). */
+    val reviewedToday: StateFlow<Int> = repository.observeActivity(mode, days = 1)
+        .map { days -> days.sumOf { it.total } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
 
     fun createDeck(name: String) {
         if (name.isBlank()) return

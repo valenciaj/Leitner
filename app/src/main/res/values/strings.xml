@@ -277,4 +277,12 @@
         <item quantity="other">Mazo «%1$s» importado: %2$d tarjetas</item>
     </plurals>
     <string name="msg_not_a_deck">Ese fichero no es un mazo compartido de Leitner</string>
+    <string name="goal_title">Objetivo diario</string>
+    <string name="goal_help">Tarjetas que quieres repasar cada día en este modo. Se ve como una barra en la lista de mazos.</string>
+    <string name="goal_off">Sin objetivo</string>
+    <string name="goal_value">%1$d tarjetas al día</string>
+    <string name="goal_less">Bajar objetivo</string>
+    <string name="goal_more">Subir objetivo</string>
+    <string name="goal_progress">🎯 Objetivo de hoy: %1$d de %2$d</string>
+    <string name="goal_reached">✅ ¡Objetivo cumplido! %1$d tarjetas hoy</string>
 </resources>
