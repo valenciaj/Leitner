@@ -30,9 +30,16 @@ import es.leitner.app.ui.settings.SettingsViewModel
 import es.leitner.app.ui.stats.StatsScreen
 import es.leitner.app.ui.stats.StatsViewModel
 import es.leitner.app.ui.theme.LeitnerTheme
+import es.leitner.app.widget.DueWidget
 import es.leitner.core.Mode
 
 class MainActivity : ComponentActivity() {
+    override fun onStop() {
+        super.onStop()
+        // Al salir de la app, el widget muestra las pendientes que quedan.
+        DueWidget.refresh(this)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

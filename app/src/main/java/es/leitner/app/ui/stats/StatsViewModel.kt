@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import es.leitner.app.data.DayActivity
 import es.leitner.app.data.LeitnerRepository
+import es.leitner.core.Achievement
 import es.leitner.core.Mode
 import es.leitner.core.Streak
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,6 +23,7 @@ data class StatsUiState(
     val perBox: List<Int> = emptyList(),
     /** Últimos 7 días, del más antiguo a hoy. */
     val lastWeek: List<DayActivity> = emptyList(),
+    val achievements: Set<Achievement> = emptySet(),
 )
 
 class StatsViewModel(repository: LeitnerRepository, val mode: Mode) : ViewModel() {
@@ -47,6 +49,8 @@ class StatsViewModel(repository: LeitnerRepository, val mode: Mode) : ViewModel(
             perBox = (1..config.boxCount).map { byBox[it] ?: 0 },
             lastWeek = (today - 6..today).map { day -> byDay[day] ?: DayActivity(day, 0, 0) },
         )
+    }.combine(repository.observeAchievements(mode)) { state, achievements ->
+        state.copy(achievements = achievements)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), StatsUiState())
 
     class Factory(private val repository: LeitnerRepository, private val mode: Mode) : ViewModelProvider.Factory {

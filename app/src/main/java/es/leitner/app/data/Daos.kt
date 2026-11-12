@@ -225,4 +225,18 @@ interface StatsDao {
         """,
     )
     fun observeReviewDays(mode: Mode): Flow<List<Long>>
+
+    @Query(
+        """
+        SELECT DISTINCT r.day FROM review_log r JOIN decks d ON r.deckId = d.id
+        WHERE d.mode = :mode
+        """,
+    )
+    suspend fun reviewDays(mode: Mode): List<Long>
+
+    @Query("SELECT COUNT(*) FROM review_log r JOIN decks d ON r.deckId = d.id WHERE d.mode = :mode AND r.correct = 1")
+    fun observeTotalCorrect(mode: Mode): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM review_log r JOIN decks d ON r.deckId = d.id WHERE d.mode = :mode AND r.correct = 1")
+    suspend fun totalCorrect(mode: Mode): Int
 }

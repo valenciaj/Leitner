@@ -15,6 +15,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import es.leitner.app.LeitnerApp
 import es.leitner.app.MainActivity
+import es.leitner.app.widget.DueWidget
 
 /** Se ejecuta una vez al día: si hay tarjetas pendientes, muestra una notificación. */
 class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
@@ -23,6 +24,8 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
         val app = applicationContext as LeitnerApp
         val due = app.repository.totalDue()
         if (due > 0) notify(applicationContext, due)
+        // Al cambiar de día, el widget debe mostrar las pendientes nuevas.
+        DueWidget.refresh(applicationContext)
         return Result.success()
     }
 
