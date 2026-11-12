@@ -154,6 +154,7 @@ class MainActivity : ComponentActivity() {
                                                 media = app.media,
                                                 pinCheck = if (hasPin) prefs::checkPin else null,
                                                 onBack = { selectedDeck = null },
+                                                onPractice = { nav.navigate("practice/${mode.name}/$deckId") },
                                             )
                                         }
                                     }
@@ -177,7 +178,24 @@ class MainActivity : ComponentActivity() {
                                 media = app.media,
                                 pinCheck = if (hasPin) prefs::checkPin else null,
                                 onBack = { nav.popBackStack() },
+                                onPractice = { nav.navigate("practice/${mode.name}/$deckId") },
                             )
+                        }
+                    }
+                    composable(
+                        "practice/{mode}/{deckId}",
+                        arguments = listOf(
+                            navArgument("mode") { type = NavType.StringType },
+                            navArgument("deckId") { type = NavType.LongType },
+                        ),
+                    ) { entry ->
+                        val mode = Mode.valueOf(entry.arguments?.getString("mode") ?: Mode.NORMAL.name)
+                        val deckId = entry.arguments?.getLong("deckId") ?: 0L
+                        val vm: ReviewViewModel = viewModel(
+                            factory = ReviewViewModel.Factory(repository, mode, deckId, prefs, practice = true),
+                        )
+                        LeitnerTheme(mode) {
+                            ReviewScreen(viewModel = vm, onClose = { nav.popBackStack() })
                         }
                     }
                     composable(

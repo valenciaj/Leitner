@@ -265,4 +265,7 @@
     <string name="widget_label_one">tarjeta para hoy</string>
     <string name="widget_label_many">tarjetas para hoy</string>
     <string name="widget_label_none">¡Todo repasado! 🎉</string>
+    <string name="practice">🎯 Practicar</string>
+    <string name="practice_title">Práctica</string>
+    <string name="practice_note">Era una práctica: las cajas y las estadísticas no cambian.</string>
 </resources>

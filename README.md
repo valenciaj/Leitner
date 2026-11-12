@@ -51,6 +51,7 @@ La CI de GitHub genera el APK de depuración en cada push.
 - **Crear también al revés** (al crear una tarjeta) o menú ⋮ → **Crear tarjetas al revés** (todo el mazo).
 - Con más de 5 tarjetas aparece un buscador en el mazo.
 - Menú ⋮ → **Pausar mazo**: sus tarjetas dejan de salir y de contar como pendientes hasta que lo reanudes.
+- Menú ⋮ → **Practicar**: repasa todas las tarjetas del mazo, al azar, sin cambiar las cajas ni las estadísticas.
 - Menú ⋮ → **Exportar CSV**: guarda las tarjetas con texto en formato `pregunta;respuesta`.
 
 ## Motivación

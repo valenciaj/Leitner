@@ -80,6 +80,8 @@ fun DeckScreen(
     /** Comprueba el PIN; null si no hay PIN configurado. */
     pinCheck: ((String) -> Boolean)?,
     onBack: () -> Unit,
+    /** Abre la práctica del mazo (todas las tarjetas, sin cambiar cajas). */
+    onPractice: () -> Unit,
 ) {
     val deck by viewModel.deck.collectAsStateWithLifecycle()
     val cards by viewModel.cards.collectAsStateWithLifecycle()
@@ -138,6 +140,11 @@ fun DeckScreen(
                             Text("⋮")
                         }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.practice)) },
+                                enabled = cards.isNotEmpty(),
+                                onClick = { menuOpen = false; onPractice() },
+                            )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.import_csv)) },
                                 onClick = {

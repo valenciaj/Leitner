@@ -46,6 +46,8 @@ class ReviewViewModel(
     val mode: Mode,
     private val deckId: Long,
     private val prefs: AppPrefs,
+    /** Práctica: todas las tarjetas del mazo, sin cambiar cajas ni estadísticas. */
+    val practice: Boolean = false,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ReviewUiState())
@@ -61,8 +63,12 @@ class ReviewViewModel(
 
     init {
         viewModelScope.launch {
-            achievementsBefore = repository.achievements(mode)
-            val due = ReviewSession.order(repository.dueCards(mode, deckId), box = { it.box })
+            if (!practice) achievementsBefore = repository.achievements(mode)
+            val due = if (practice) {
+                repository.deckCards(deckId).shuffled()
+            } else {
+                ReviewSession.order(repository.dueCards(mode, deckId), box = { it.box })
+            }
             cards = due.associateBy { it.id }
             val limit = if (mode == Mode.KIDS) ReviewSession.KIDS_SESSION_LIMIT else null
             session = ReviewSession(due.map { it.id }, limit)
@@ -96,11 +102,11 @@ class ReviewViewModel(
         viewModelScope.launch {
             val step = session.answer(correct)
             // Los reintentos de una fallada no cambian la caja: ya volvió a la caja 1.
-            if (step.firstAttempt) {
+            if (step.firstAttempt && !practice) {
                 repository.answer(step.cardId, mode, correct)?.let(saved::addLast)
             }
             publish(revealed = false)
-            if (session.isFinished) {
+            if (session.isFinished && !practice) {
                 val earned = repository.achievements(mode) - achievementsBefore
                 _state.value = _state.value.copy(newAchievements = Achievement.entries.filter { it in earned })
             }
@@ -145,8 +151,10 @@ class ReviewViewModel(
         private val mode: Mode,
         private val deckId: Long,
         private val prefs: AppPrefs,
+        private val practice: Boolean = false,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = ReviewViewModel(repository, mode, deckId, prefs) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            ReviewViewModel(repository, mode, deckId, prefs, practice) as T
     }
 }

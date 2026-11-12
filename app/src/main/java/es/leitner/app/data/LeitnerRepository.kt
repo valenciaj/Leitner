@@ -149,6 +149,9 @@ class LeitnerRepository(
     suspend fun dueCards(mode: Mode, deckId: Long): List<CardEntity> =
         if (deckId == ALL_DECKS) cards.dueCardsOfMode(mode, today()) else cards.dueCards(deckId, today())
 
+    /** Todas las tarjetas de un mazo (para practicar sin tocar las cajas). */
+    suspend fun deckCards(deckId: Long): List<CardEntity> = cards.cardsOfDeck(deckId)
+
     /** Registra la respuesta a una tarjeta y la mueve de caja. Devuelve lo necesario para deshacerla. */
     suspend fun answer(cardId: Long, mode: Mode, correct: Boolean): AnswerRecord? {
         val card = cards.get(cardId) ?: return null
