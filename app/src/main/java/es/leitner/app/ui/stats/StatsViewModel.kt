@@ -24,6 +24,8 @@ data class StatsUiState(
     /** Últimos 7 días, del más antiguo a hoy. */
     val lastWeek: List<DayActivity> = emptyList(),
     val achievements: Set<Achievement> = emptySet(),
+    /** Últimos 30 días, del más antiguo a hoy. */
+    val lastMonth: List<DayActivity> = emptyList(),
 )
 
 class StatsViewModel(repository: LeitnerRepository, val mode: Mode) : ViewModel() {
@@ -51,6 +53,9 @@ class StatsViewModel(repository: LeitnerRepository, val mode: Mode) : ViewModel(
         )
     }.combine(repository.observeAchievements(mode)) { state, achievements ->
         state.copy(achievements = achievements)
+    }.combine(repository.observeActivity(mode, days = 30)) { state, activity ->
+        val byDay = activity.associateBy { it.day }
+        state.copy(lastMonth = (today - 29..today).map { day -> byDay[day] ?: DayActivity(day, 0, 0) })
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), StatsUiState())
 
     class Factory(private val repository: LeitnerRepository, private val mode: Mode) : ViewModelProvider.Factory {
