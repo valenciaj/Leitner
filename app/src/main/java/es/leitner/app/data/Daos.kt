@@ -135,6 +135,9 @@ interface StatsDao {
     )
     fun observeDueCount(mode: Mode, today: Long): Flow<Int>
 
+    @Query("SELECT COUNT(*) FROM cards WHERE nextReviewDay <= :today")
+    suspend fun totalDue(today: Long): Int
+
     @Query(
         """
         SELECT r.day AS day, SUM(r.correct) AS correct, COUNT(*) AS total

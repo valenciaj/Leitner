@@ -118,6 +118,9 @@ class LeitnerRepository(
 
     fun observeDueCount(mode: Mode): Flow<Int> = stats.observeDueCount(mode, today())
 
+    /** Tarjetas pendientes hoy en todos los modos (para el recordatorio). */
+    suspend fun totalDue(): Int = stats.totalDue(today())
+
     /** Actividad de los últimos [days] días (incluido hoy). */
     fun observeActivity(mode: Mode, days: Int): Flow<List<DayActivity>> =
         stats.observeActivity(mode, today() - (days - 1))

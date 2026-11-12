@@ -33,6 +33,20 @@ class AppPrefs(context: Context) {
         _hasPin.value = false
     }
 
+    // ---- Recordatorio diario ----
+
+    var reminderEnabled: Boolean
+        get() = prefs.getBoolean(KEY_REMINDER_ON, false)
+        set(value) = prefs.edit().putBoolean(KEY_REMINDER_ON, value).apply()
+
+    var reminderHour: Int
+        get() = prefs.getInt(KEY_REMINDER_HOUR, 18)
+        set(value) = prefs.edit().putInt(KEY_REMINDER_HOUR, value).apply()
+
+    var reminderMinute: Int
+        get() = prefs.getInt(KEY_REMINDER_MINUTE, 0)
+        set(value) = prefs.edit().putInt(KEY_REMINDER_MINUTE, value).apply()
+
     var lastMode: Mode?
         get() = prefs.getString(KEY_LAST_MODE, null)?.let { runCatching { Mode.valueOf(it) }.getOrNull() }
         set(value) = prefs.edit().putString(KEY_LAST_MODE, value?.name).apply()
@@ -41,5 +55,8 @@ class AppPrefs(context: Context) {
         const val KEY_PIN_SALT = "pin_salt"
         const val KEY_PIN_HASH = "pin_hash"
         const val KEY_LAST_MODE = "last_mode"
+        const val KEY_REMINDER_ON = "reminder_on"
+        const val KEY_REMINDER_HOUR = "reminder_hour"
+        const val KEY_REMINDER_MINUTE = "reminder_minute"
     }
 }
