@@ -15,6 +15,7 @@ data class DeckSummary(
     val name: String,
     val totalCards: Int,
     val dueCards: Int,
+    val paused: Boolean = false,
 )
 
 @Dao
@@ -34,6 +35,9 @@ interface DeckDao {
     @Query("SELECT * FROM decks WHERE id = :id")
     fun observe(id: Long): Flow<DeckEntity?>
 
+    @Query("UPDATE decks SET paused = :paused WHERE id = :id")
+    suspend fun setPaused(id: Long, paused: Boolean)
+
     @Query("UPDATE decks SET name = :name WHERE id = :id")
     suspend fun rename(id: Long, name: String)
 
@@ -42,9 +46,9 @@ interface DeckDao {
 
     @Query(
         """
-        SELECT d.id, d.name,
+        SELECT d.id, d.name, d.paused,
                COUNT(c.id) AS totalCards,
-               COALESCE(SUM(CASE WHEN c.nextReviewDay <= :today THEN 1 ELSE 0 END), 0) AS dueCards
+               COALESCE(SUM(CASE WHEN d.paused = 0 AND c.nextReviewDay <= :today THEN 1 ELSE 0 END), 0) AS dueCards
         FROM decks d LEFT JOIN cards c ON c.deckId = d.id
         WHERE d.mode = :mode
         GROUP BY d.id
@@ -104,7 +108,7 @@ interface CardDao {
     @Query(
         """
         SELECT c.* FROM cards c JOIN decks d ON c.deckId = d.id
-        WHERE d.mode = :mode AND c.nextReviewDay <= :today
+        WHERE d.mode = :mode AND d.paused = 0 AND c.nextReviewDay <= :today
         ORDER BY c.box, c.nextReviewDay
         """,
     )
@@ -200,12 +204,12 @@ interface StatsDao {
     @Query(
         """
         SELECT COUNT(*) FROM cards c JOIN decks d ON c.deckId = d.id
-        WHERE d.mode = :mode AND c.nextReviewDay <= :today
+        WHERE d.mode = :mode AND d.paused = 0 AND c.nextReviewDay <= :today
         """,
     )
     fun observeDueCount(mode: Mode, today: Long): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM cards WHERE nextReviewDay <= :today")
+    @Query("SELECT COUNT(*) FROM cards c JOIN decks d ON c.deckId = d.id WHERE d.paused = 0 AND c.nextReviewDay <= :today")
     suspend fun totalDue(today: Long): Int
 
     @Query(

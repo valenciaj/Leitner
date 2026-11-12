@@ -242,6 +242,10 @@
     <string name="typed_right">✅ Correct!</string>
     <string name="typed_wrong">❌ You wrote: %1$s</string>
 
+    <string name="pause_deck">⏸ Pause deck</string>
+    <string name="resume_deck">▶ Resume deck</string>
+    <string name="deck_paused">⏸ Paused · %1$d cards</string>
+
     <!-- Notificación -->
     <string name="notif_channel">Daily reminder</string>
     <string name="notif_title">Time to review!</string>

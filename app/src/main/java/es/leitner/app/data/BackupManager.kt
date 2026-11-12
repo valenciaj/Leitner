@@ -131,13 +131,15 @@ class BackupManager(
         fun JSONObject.optStringOrNull(key: String): String? = if (isNull(key) || !has(key)) null else getString(key)
 
         fun DeckEntity.toJson() = JSONObject()
-            .put("id", id).put("name", name).put("mode", mode.name).put("createdAt", createdAt)
+            .put("id", id).put("name", name).put("mode", mode.name).put("createdAt", createdAt).put("paused", paused)
 
         fun JSONObject.toDeck() = DeckEntity(
             id = getLong("id"),
             name = getString("name"),
             mode = Mode.valueOf(getString("mode")),
             createdAt = getLong("createdAt"),
+            // Las copias antiguas no tienen este campo.
+            paused = optBoolean("paused", false),
         )
 
         fun CardEntity.toJson() = JSONObject()
