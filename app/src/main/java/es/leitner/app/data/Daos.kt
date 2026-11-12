@@ -28,6 +28,18 @@ interface DeckDao {
     @Delete
     suspend fun delete(deck: DeckEntity)
 
+    @Query("SELECT * FROM decks WHERE id = :id")
+    suspend fun get(id: Long): DeckEntity?
+
+    @Query("SELECT * FROM decks WHERE id = :id")
+    fun observe(id: Long): Flow<DeckEntity?>
+
+    @Query("UPDATE decks SET name = :name WHERE id = :id")
+    suspend fun rename(id: Long, name: String)
+
+    @Query("DELETE FROM decks WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
     @Query(
         """
         SELECT d.id, d.name,
@@ -55,6 +67,12 @@ interface CardDao {
 
     @Query("SELECT * FROM cards WHERE id = :id")
     suspend fun get(id: Long): CardEntity?
+
+    @Query("DELETE FROM cards WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
+    @Query("UPDATE cards SET front = :front, back = :back WHERE id = :id")
+    suspend fun updateText(id: Long, front: String, back: String)
 
     @Query("SELECT * FROM cards WHERE deckId = :deckId ORDER BY createdAt")
     fun observeByDeck(deckId: Long): Flow<List<CardEntity>>

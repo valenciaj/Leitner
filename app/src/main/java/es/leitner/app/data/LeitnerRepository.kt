@@ -37,6 +37,13 @@ class LeitnerRepository(
 
     suspend fun createDeck(name: String, mode: Mode): Long = decks.insert(DeckEntity(name = name.trim(), mode = mode))
 
+    fun observeDeck(deckId: Long): Flow<DeckEntity?> = decks.observe(deckId)
+
+    suspend fun renameDeck(deckId: Long, name: String) = decks.rename(deckId, name.trim())
+
+    /** Borra el mazo y todas sus tarjetas. */
+    suspend fun deleteDeck(deckId: Long) = decks.deleteById(deckId)
+
     // ---- Tarjetas ----
 
     suspend fun addCard(deckId: Long, front: String, back: String, imageUri: String? = null): Long {
@@ -52,6 +59,16 @@ class LeitnerRepository(
             ),
         )
     }
+
+    fun observeCards(deckId: Long): Flow<List<CardEntity>> = cards.observeByDeck(deckId)
+
+    suspend fun card(cardId: Long): CardEntity? = cards.get(cardId)
+
+    /** Editar el texto no cambia la caja ni la fecha de repaso. */
+    suspend fun updateCard(cardId: Long, front: String, back: String) =
+        cards.updateText(cardId, front.trim(), back.trim())
+
+    suspend fun deleteCard(cardId: Long) = cards.deleteById(cardId)
 
     suspend fun dueCards(deckId: Long): List<CardEntity> = cards.dueCards(deckId, today())
 
