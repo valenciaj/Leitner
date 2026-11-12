@@ -11,6 +11,7 @@ import es.leitner.core.Achievement
 import es.leitner.core.AnswerCheck
 import es.leitner.core.Mode
 import es.leitner.core.ReviewSession
+import es.leitner.core.Tags
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,6 +49,8 @@ class ReviewViewModel(
     private val prefs: AppPrefs,
     /** Práctica: todas las tarjetas del mazo, sin cambiar cajas ni estadísticas. */
     val practice: Boolean = false,
+    /** En la práctica, solo las tarjetas con esta etiqueta. */
+    private val practiceTag: String? = null,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ReviewUiState())
@@ -65,7 +68,9 @@ class ReviewViewModel(
         viewModelScope.launch {
             if (!practice) achievementsBefore = repository.achievements(mode)
             val due = if (practice) {
-                repository.deckCards(deckId).shuffled()
+                repository.deckCards(deckId)
+                    .filter { practiceTag == null || Tags.has(it.tags, practiceTag) }
+                    .shuffled()
             } else {
                 ReviewSession.order(repository.dueCards(mode, deckId), box = { it.box })
             }
@@ -152,9 +157,10 @@ class ReviewViewModel(
         private val deckId: Long,
         private val prefs: AppPrefs,
         private val practice: Boolean = false,
+        private val practiceTag: String? = null,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            ReviewViewModel(repository, mode, deckId, prefs, practice) as T
+            ReviewViewModel(repository, mode, deckId, prefs, practice, practiceTag) as T
     }
 }

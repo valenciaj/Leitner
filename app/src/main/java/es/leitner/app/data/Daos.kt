@@ -81,7 +81,7 @@ interface CardDao {
     @Query(
         """
         UPDATE cards SET front = :front, back = :back, imageUri = :imagePath, audioPath = :audioPath,
-            backImageUri = :backImagePath, backAudioPath = :backAudioPath
+            backImageUri = :backImagePath, backAudioPath = :backAudioPath, tags = :tags
         WHERE id = :id
         """,
     )
@@ -93,6 +93,7 @@ interface CardDao {
         audioPath: String?,
         backImagePath: String?,
         backAudioPath: String?,
+        tags: String,
     )
 
     @Query("SELECT * FROM cards WHERE deckId = :deckId")

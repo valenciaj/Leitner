@@ -1,5 +1,6 @@
 package es.leitner.app
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -158,7 +159,7 @@ class MainActivity : ComponentActivity() {
                                                 deckShare = app.deckShare,
                                                 pinCheck = if (hasPin) prefs::checkPin else null,
                                                 onBack = { selectedDeck = null },
-                                                onPractice = { nav.navigate("practice/${mode.name}/$deckId") },
+                                                onPractice = { tag -> nav.navigate(practiceRoute(mode, deckId, tag)) },
                                             )
                                         }
                                     }
@@ -183,21 +184,23 @@ class MainActivity : ComponentActivity() {
                                 deckShare = app.deckShare,
                                 pinCheck = if (hasPin) prefs::checkPin else null,
                                 onBack = { nav.popBackStack() },
-                                onPractice = { nav.navigate("practice/${mode.name}/$deckId") },
+                                onPractice = { tag -> nav.navigate(practiceRoute(mode, deckId, tag)) },
                             )
                         }
                     }
                     composable(
-                        "practice/{mode}/{deckId}",
+                        "practice/{mode}/{deckId}?tag={tag}",
                         arguments = listOf(
                             navArgument("mode") { type = NavType.StringType },
                             navArgument("deckId") { type = NavType.LongType },
+                            navArgument("tag") { type = NavType.StringType; nullable = true; defaultValue = null },
                         ),
                     ) { entry ->
                         val mode = Mode.valueOf(entry.arguments?.getString("mode") ?: Mode.NORMAL.name)
                         val deckId = entry.arguments?.getLong("deckId") ?: 0L
+                        val tag = entry.arguments?.getString("tag")
                         val vm: ReviewViewModel = viewModel(
-                            factory = ReviewViewModel.Factory(repository, mode, deckId, prefs, practice = true),
+                            factory = ReviewViewModel.Factory(repository, mode, deckId, prefs, practice = true, practiceTag = tag),
                         )
                         LeitnerTheme(mode) {
                             ReviewScreen(viewModel = vm, onClose = { nav.popBackStack() })
@@ -238,3 +241,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+/** Ruta de la práctica de un mazo, opcionalmente solo con las tarjetas de una etiqueta. */
+private fun practiceRoute(mode: Mode, deckId: Long, tag: String?): String =
+    "practice/${mode.name}/$deckId" + (tag?.let { "?tag=${Uri.encode(it)}" } ?: "")

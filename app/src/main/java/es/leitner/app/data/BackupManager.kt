@@ -148,7 +148,7 @@ class BackupManager(
             .put("audio", audioPath?.let { File(it).name } ?: JSONObject.NULL)
             .put("backImage", backImageUri?.let { File(it).name } ?: JSONObject.NULL)
             .put("backAudio", backAudioPath?.let { File(it).name } ?: JSONObject.NULL)
-            .put("box", box).put("nextReviewDay", nextReviewDay).put("createdAt", createdAt)
+            .put("box", box).put("nextReviewDay", nextReviewDay).put("createdAt", createdAt).put("tags", tags)
 
         fun JSONObject.toCard(mediaDir: File) = CardEntity(
             id = getLong("id"),
@@ -163,6 +163,7 @@ class BackupManager(
             box = getInt("box"),
             nextReviewDay = getLong("nextReviewDay"),
             createdAt = getLong("createdAt"),
+            tags = optString("tags", ""),
         )
 
         fun ReviewLogEntity.toJson() = JSONObject()

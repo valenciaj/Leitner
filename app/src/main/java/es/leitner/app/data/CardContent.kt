@@ -8,6 +8,8 @@ data class CardContent(
     val audioPath: String? = null,
     val backImagePath: String? = null,
     val backAudioPath: String? = null,
+    /** Etiquetas separadas por comas. */
+    val tags: String = "",
 ) {
     val hasQuestion: Boolean get() = front.isNotBlank() || imagePath != null || audioPath != null
     val hasAnswer: Boolean get() = back.isNotBlank() || backImagePath != null || backAudioPath != null
@@ -26,7 +28,8 @@ data class CardContent(
         audioPath = backAudioPath,
         backImagePath = imagePath,
         backAudioPath = audioPath,
+        tags = tags,
     )
 }
 
-fun CardEntity.content() = CardContent(front, back, imageUri, audioPath, backImageUri, backAudioPath)
+fun CardEntity.content() = CardContent(front, back, imageUri, audioPath, backImageUri, backAudioPath, tags)

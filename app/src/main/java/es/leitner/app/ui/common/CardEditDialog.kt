@@ -72,6 +72,7 @@ fun CardEditDialog(
     var audioPath by remember { mutableStateOf(initial.audioPath) }
     var backImagePath by remember { mutableStateOf(initial.backImagePath) }
     var backAudioPath by remember { mutableStateOf(initial.backAudioPath) }
+    var tags by remember { mutableStateOf(initial.tags) }
     var alsoReversed by remember { mutableStateOf(false) }
     var recording by remember { mutableStateOf<Pair<Side, File>?>(null) }
     var pickingFor by remember { mutableStateOf(Side.FRONT) }
@@ -145,7 +146,7 @@ fun CardEditDialog(
         return
     }
 
-    val content = CardContent(front.trim(), back.trim(), imagePath, audioPath, backImagePath, backAudioPath)
+    val content = CardContent(front.trim(), back.trim(), imagePath, audioPath, backImagePath, backAudioPath, tags.trim())
     val dismiss = {
         player.stop()
         if (recorder.isRecording) stopRecording()
@@ -204,6 +205,15 @@ fun CardEditDialog(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Media(Side.BACK)
+
+                OutlinedTextField(
+                    value = tags,
+                    onValueChange = { tags = it },
+                    label = { Text(stringResource(R.string.tags)) },
+                    placeholder = { Text(stringResource(R.string.tags_hint)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
 
                 if (recording != null) Text(stringResource(R.string.recording), color = MaterialTheme.colorScheme.error)
                 message?.let { Text(it, color = MaterialTheme.colorScheme.error) }

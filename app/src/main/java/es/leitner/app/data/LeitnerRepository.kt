@@ -7,6 +7,7 @@ import es.leitner.core.CardProgress
 import es.leitner.core.LeitnerConfig
 import es.leitner.core.LeitnerScheduler
 import es.leitner.core.Mode
+import es.leitner.core.Tags
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -68,6 +69,7 @@ class LeitnerRepository(
                 audioPath = content.audioPath,
                 backImageUri = content.backImagePath,
                 backAudioPath = content.backAudioPath,
+                tags = Tags.normalize(content.tags),
                 box = progress.box,
                 nextReviewDay = progress.nextReviewDay,
             ),
@@ -135,6 +137,7 @@ class LeitnerRepository(
             content.audioPath,
             content.backImagePath,
             content.backAudioPath,
+            Tags.normalize(content.tags),
         )
         (old.content().files - content.files).forEach(media::delete)
     }

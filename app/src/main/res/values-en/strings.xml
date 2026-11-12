@@ -283,4 +283,7 @@
     <string name="goal_more">Raise goal</string>
     <string name="goal_progress">🎯 Today\'s goal: %1$d of %2$d</string>
     <string name="goal_reached">✅ Goal reached! %1$d cards today</string>
+    <string name="tags">Tags (optional)</string>
+    <string name="tags_hint">e.g. verbs, unit 3</string>
+    <string name="practice_tag">🎯 Practice “%1$s”</string>
 </resources>

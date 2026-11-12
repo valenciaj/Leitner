@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
@@ -23,6 +24,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -84,12 +86,14 @@ fun DeckScreen(
     pinCheck: ((String) -> Boolean)?,
     onBack: () -> Unit,
     /** Abre la práctica del mazo (todas las tarjetas, sin cambiar cajas). */
-    onPractice: () -> Unit,
+    onPractice: (tag: String?) -> Unit,
 ) {
     val deck by viewModel.deck.collectAsStateWithLifecycle()
     val cards by viewModel.cards.collectAsStateWithLifecycle()
     val visibleCards by viewModel.visibleCards.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()
+    val tags by viewModel.tags.collectAsStateWithLifecycle()
+    val selectedTag by viewModel.selectedTag.collectAsStateWithLifecycle()
     val config by viewModel.config.collectAsStateWithLifecycle()
     var dialog by remember { mutableStateOf<DeckDialog?>(null) }
     var menuOpen by remember { mutableStateOf(false) }
@@ -144,9 +148,14 @@ fun DeckScreen(
                         }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.practice)) },
+                                text = {
+                                    Text(
+                                        selectedTag?.let { stringResource(R.string.practice_tag, it) }
+                                            ?: stringResource(R.string.practice),
+                                    )
+                                },
                                 enabled = cards.isNotEmpty(),
-                                onClick = { menuOpen = false; onPractice() },
+                                onClick = { menuOpen = false; onPractice(selectedTag) },
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.import_csv)) },
@@ -231,6 +240,19 @@ fun DeckScreen(
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
+                if (tags.isNotEmpty()) {
+                    item(key = "tags") {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(tags, key = { it }) { tag ->
+                                FilterChip(
+                                    selected = tag == selectedTag,
+                                    onClick = { viewModel.selectTag(tag) },
+                                    label = { Text(tag) },
+                                )
+                            }
+                        }
+                    }
+                }
                 if (cards.size > 5 || query.isNotEmpty()) {
                     item(key = "search") {
                         OutlinedTextField(
@@ -250,9 +272,9 @@ fun DeckScreen(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                    if (visibleCards.isEmpty()) {
-                        item(key = "noresults") { Text(stringResource(R.string.no_results), style = MaterialTheme.typography.bodyMedium) }
-                    }
+                }
+                if (visibleCards.isEmpty()) {
+                    item(key = "noresults") { Text(stringResource(R.string.no_results), style = MaterialTheme.typography.bodyMedium) }
                 }
                 items(visibleCards, key = { it.id }) { card ->
                     CardRow(card, kids, onClick = { dialog = DeckDialog.EditCard(card) })
@@ -327,6 +349,13 @@ private fun CardRow(card: CardEntity, kids: Boolean, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.semantics { contentDescription = sideDescription(card.back, card.backImageUri, card.backAudioPath, withImage, withAudio) },
                 )
+                if (card.tags.isNotBlank()) {
+                    Text(
+                        "🏷 ${card.tags}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
             AssistChip(onClick = onClick, label = { Text(stringResource(R.string.box_n, card.box)) })
         }
