@@ -1,0 +1,246 @@
+<resources>
+    <!-- Modos -->
+    <string name="mode_kids">Kids</string>
+    <string name="mode_normal">Classic</string>
+
+    <!-- Común -->
+    <string name="back">‹ Back</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="accept">OK</string>
+    <string name="name">Name</string>
+    <string name="more_options">More options</string>
+    <string name="box_n">Box %1$d</string>
+
+    <!-- Elegir modo -->
+    <string name="mode_question">Who is going to study?</string>
+    <string name="box_settings">⚙ Box settings</string>
+    <string name="box_settings_title">Box settings</string>
+
+    <!-- Mazos -->
+    <string name="decks_title">Decks</string>
+    <string name="decks_title_kids">My cards</string>
+    <string name="stats">Statistics</string>
+    <string name="stats_kids">🏆</string>
+    <string name="my_achievements">My achievements</string>
+    <string name="change_mode">Change mode</string>
+    <string name="new_deck">New deck</string>
+    <string name="new_deck_kids">➕ New deck</string>
+    <string name="create">Create</string>
+    <string name="no_decks">No decks yet</string>
+    <string name="pick_deck">Pick a deck to see its cards</string>
+    <string name="no_decks_kids">Create your first deck! 🎉</string>
+    <string name="review_all">Review all (%1$d)</string>
+    <string name="review_all_kids">▶ Play with everything (%1$d)</string>
+    <string name="review">Review</string>
+    <string name="review_kids">▶ Play</string>
+    <string name="deck_summary">%1$d due · %2$d cards</string>
+    <string name="deck_summary_kids">%1$d for today ⭐</string>
+    <string name="pin_to_leave">PIN to leave</string>
+
+    <!-- Mazo -->
+    <string name="import_csv">Import CSV</string>
+    <string name="export_csv">Export CSV</string>
+    <string name="create_reversed">Create reversed cards</string>
+    <string name="rename_deck">Rename deck</string>
+    <string name="delete_deck">Delete deck</string>
+    <string name="new_card">New card</string>
+    <string name="new_card_kids">➕ New card</string>
+    <string name="edit_card">Edit card</string>
+    <string name="empty_deck">This deck has no cards</string>
+    <string name="empty_deck_kids">Add your first card! ✏️</string>
+    <string name="deck_header">%1$d cards · %2$d boxes</string>
+    <string name="search">🔍 Search</string>
+    <string name="clear_search">Clear search</string>
+    <string name="no_results">No cards match</string>
+    <string name="delete_deck_question">Delete the deck?</string>
+    <string name="delete_deck_message">Its %1$d cards will be deleted too. This can\'t be undone.</string>
+    <string name="default_deck_file">deck</string>
+    <string name="has_image">with image</string>
+    <string name="has_audio">with audio</string>
+    <string name="msg_read_failed">Couldn\'t read the file</string>
+    <plurals name="msg_imported">
+        <item quantity="one">%1$d card imported</item>
+        <item quantity="other">%1$d cards imported</item>
+    </plurals>
+    <plurals name="msg_incomplete_lines">
+        <item quantity="one">%1$d incomplete line</item>
+        <item quantity="other">%1$d incomplete lines</item>
+    </plurals>
+    <string name="msg_reversed_none">All cards already have a reversed version</string>
+    <plurals name="msg_reversed">
+        <item quantity="one">%1$d reversed card created</item>
+        <item quantity="other">%1$d reversed cards created</item>
+    </plurals>
+    <string name="msg_export_failed">Couldn\'t export</string>
+    <plurals name="msg_exported">
+        <item quantity="one">%1$d card exported</item>
+        <item quantity="other">%1$d cards exported</item>
+    </plurals>
+    <plurals name="msg_export_skipped">
+        <item quantity="one">%1$d without text skipped</item>
+        <item quantity="other">%1$d without text skipped</item>
+    </plurals>
+
+    <!-- Editar tarjeta -->
+    <string name="question">Question</string>
+    <string name="answer">Answer</string>
+    <string name="image">📷 Image</string>
+    <string name="image_change">📷 Change</string>
+    <string name="image_remove">Remove image</string>
+    <string name="record">🎤 Record</string>
+    <string name="rerecord">🎤 Record again</string>
+    <string name="stop">⏹ Stop</string>
+    <string name="listen">🔊 Listen</string>
+    <string name="audio_remove">Remove audio</string>
+    <string name="recording">Recording…</string>
+    <string name="also_reversed">Also create reversed</string>
+    <string name="delete_card">Delete card</string>
+    <string name="delete_card_question">Delete card?</string>
+    <string name="cannot_undo">This can\'t be undone.</string>
+    <string name="err_image">Couldn\'t load the image</string>
+    <string name="err_record">Couldn\'t record</string>
+    <string name="err_too_short">Recording too short</string>
+    <string name="err_mic_permission">Microphone permission is needed to record</string>
+    <string name="cd_question_image">Question image</string>
+    <string name="cd_answer_image">Answer image</string>
+
+    <!-- Repaso -->
+    <string name="review_title">Review</string>
+    <string name="review_title_kids">Let\'s play!</string>
+    <string name="exit">✕ Exit</string>
+    <string name="undo">↶ Undo</string>
+    <string name="progress">%1$d / %2$d</string>
+    <string name="retry">🔁 Missed cards</string>
+    <string name="retry_kids">🔁 Try again!</string>
+    <string name="read_aloud">🗣 Read</string>
+    <string name="tap_to_reveal">Tap to see the answer</string>
+    <string name="tap_to_reveal_kids">👆 Tap to see the answer</string>
+    <string name="show_answer">Show answer</string>
+    <string name="wrong">Wrong</string>
+    <string name="wrong_kids">❌ Wrong</string>
+    <string name="right">Right</string>
+    <string name="right_kids">✅ Got it!</string>
+    <string name="nothing_due">No cards due today</string>
+    <string name="nothing_due_kids">No cards today! 🎈</string>
+    <string name="praise_3">Amazing!</string>
+    <string name="praise_2">Very good!</string>
+    <string name="praise_1">Good job!</string>
+    <string name="praise_0">Keep practising!</string>
+    <string name="kids_result">You got %1$d of %2$d</string>
+    <string name="review_done">Review finished</string>
+    <string name="review_result">Right: %1$d · Wrong: %2$d</string>
+    <string name="new_sticker">New sticker!</string>
+    <string name="new_achievement">New achievement</string>
+    <string name="back_home">Back</string>
+    <plurals name="cd_stars">
+        <item quantity="one">%1$d star</item>
+        <item quantity="other">%1$d stars</item>
+    </plurals>
+
+    <!-- Estadísticas -->
+    <string name="streak">🔥 Streak</string>
+    <plurals name="days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <string name="today">Today</string>
+    <string name="today_kids">⭐ Today</string>
+    <string name="due">Due</string>
+    <string name="cards">Cards</string>
+    <string name="per_box">Cards per box</string>
+    <string name="per_box_kids">Where are my cards?</string>
+    <string name="cd_box_count">Box %1$d: %2$d cards</string>
+    <string name="stickers">Achievements (%1$d/%2$d)</string>
+    <string name="stickers_kids">My stickers (%1$d/%2$d)</string>
+    <string name="cd_sticker_earned">Earned: %1$s</string>
+    <string name="cd_sticker_locked">Not earned. %1$s</string>
+    <string name="last_7_days">Last 7 days</string>
+    <string name="cd_day_activity">%1$s: %2$d reviews</string>
+
+    <!-- Ajustes -->
+    <string name="box_settings_help">Days until the next review for each box. If you get it right, the card moves up a box; if not, it goes back to box 1.</string>
+    <string name="days_suffix">days</string>
+    <string name="add_box">+ Box</string>
+    <string name="remove_box">− Box</string>
+    <string name="defaults">Defaults</string>
+    <string name="saved">Saved ✓</string>
+    <string name="remove_box_help">If you remove boxes, their cards move to the last box.</string>
+    <string name="pin_title">%1$s mode PIN</string>
+    <string name="pin_on">On: needed to leave %1$s mode and to delete its decks.</string>
+    <string name="pin_off">Without a PIN, anyone can leave %1$s mode.</string>
+    <string name="pin_change">Change PIN</string>
+    <string name="pin_remove">Remove PIN</string>
+    <string name="pin_create">Create PIN</string>
+    <string name="pin_current">Current PIN</string>
+    <string name="pin_removed">PIN removed</string>
+    <string name="pin_saved">PIN saved ✓</string>
+    <string name="pin_new">New PIN</string>
+    <string name="pin_4_digits">PIN (4 digits)</string>
+    <string name="pin_repeat">Repeat the PIN</string>
+    <string name="pin_mismatch">They don\'t match</string>
+    <string name="pin_enter">Enter the PIN</string>
+    <string name="pin">PIN</string>
+    <string name="pin_wrong">Wrong PIN</string>
+    <string name="reminder_title">Daily reminder</string>
+    <string name="reminder_help">Notifies you if there are cards due (in either mode).</string>
+    <string name="reminder_time">Time: %1$s</string>
+    <string name="reminder_pick_time">Reminder time</string>
+    <string name="reminder_no_permission">Notification permission is needed for reminders</string>
+    <string name="backup_title">Backup</string>
+    <string name="backup_help">Saves all decks, cards, images, audio and statistics of both modes to a file.</string>
+    <string name="backup_export">Export</string>
+    <string name="backup_import">Import</string>
+    <string name="working">Working…</string>
+    <string name="backup_saved">Backup saved: %1$d decks, %2$d cards ✓</string>
+    <string name="backup_save_failed">Couldn\'t save the backup</string>
+    <string name="backup_import_question">Import the backup?</string>
+    <string name="backup_import_message">All current data will be deleted and replaced with the backup.</string>
+    <string name="backup_imported">Backup imported: %1$d decks, %2$d cards ✓</string>
+    <string name="backup_import_failed">Couldn\'t import the backup</string>
+
+    <string name="err_box_count">The number of boxes must be between %1$d and %2$d</string>
+    <string name="err_interval_range">Each interval must be between 1 and %1$d days</string>
+    <string name="backup_not_a_backup">The file is not a Leitner backup</string>
+    <string name="backup_damaged">The backup is damaged</string>
+    <string name="backup_unsupported">Unsupported backup version</string>
+
+    <!-- Pegatinas -->
+    <string name="ach_first_correct">First right answer</string>
+    <string name="ach_first_correct_hint">Get one card right</string>
+    <string name="ach_correct_10">10 right answers</string>
+    <string name="ach_correct_10_hint">Get 10 cards right</string>
+    <string name="ach_correct_50">50 right answers</string>
+    <string name="ach_correct_50_hint">Get 50 cards right</string>
+    <string name="ach_correct_100">100 right answers</string>
+    <string name="ach_correct_100_hint">Get 100 cards right</string>
+    <string name="ach_correct_500">500 right answers</string>
+    <string name="ach_correct_500_hint">Get 500 cards right</string>
+    <string name="ach_correct_1000">1000 right answers</string>
+    <string name="ach_correct_1000_hint">Get 1000 cards right</string>
+    <string name="ach_streak_3">3-day streak</string>
+    <string name="ach_streak_3_hint">Review 3 days in a row</string>
+    <string name="ach_streak_7">7-day streak</string>
+    <string name="ach_streak_7_hint">Review 7 days in a row</string>
+    <string name="ach_streak_30">30-day streak</string>
+    <string name="ach_streak_30_hint">Review 30 days in a row</string>
+    <string name="ach_days_10">10 days studying</string>
+    <string name="ach_days_10_hint">Review on 10 different days</string>
+    <string name="ach_days_50">50 days studying</string>
+    <string name="ach_days_50_hint">Review on 50 different days</string>
+
+    <!-- Notificación -->
+    <string name="notif_channel">Daily reminder</string>
+    <string name="notif_title">Time to review!</string>
+    <plurals name="notif_text">
+        <item quantity="one">You have %1$d card due</item>
+        <item quantity="other">You have %1$d cards due</item>
+    </plurals>
+
+    <!-- Widget -->
+    <string name="widget_description">Cards due today</string>
+    <string name="widget_label_one">card for today</string>
+    <string name="widget_label_many">cards for today</string>
+    <string name="widget_label_none">All reviewed! 🎉</string>
+</resources>

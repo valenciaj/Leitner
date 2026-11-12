@@ -24,6 +24,7 @@ import es.leitner.app.R
 import es.leitner.app.data.AppPrefs
 import es.leitner.app.ui.ModeNames
 import es.leitner.app.ui.common.PinDialog
+import es.leitner.core.Mode
 import es.leitner.core.Pin
 
 private enum class PinStep { NONE, VERIFY_FOR_CHANGE, VERIFY_FOR_REMOVE, NEW }
@@ -32,18 +33,19 @@ private enum class PinStep { NONE, VERIFY_FOR_CHANGE, VERIFY_FOR_REMOVE, NEW }
 @Composable
 fun PinSection(prefs: AppPrefs) {
     val hasPin by prefs.hasPin.collectAsState()
+    val kidsName = stringResource(ModeNames.of(Mode.KIDS))
     var step by remember { mutableStateOf(PinStep.NONE) }
     var info by remember { mutableStateOf<String?>(null) }
     val removedText = stringResource(R.string.pin_removed)
     val savedText = stringResource(R.string.pin_saved)
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(stringResource(R.string.pin_title, ModeNames.KIDS), style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.pin_title, kidsName), style = MaterialTheme.typography.titleMedium)
         Text(
             if (hasPin) {
-                stringResource(R.string.pin_on, ModeNames.KIDS)
+                stringResource(R.string.pin_on, kidsName)
             } else {
-                stringResource(R.string.pin_off, ModeNames.KIDS)
+                stringResource(R.string.pin_off, kidsName)
             },
             style = MaterialTheme.typography.bodyMedium,
         )

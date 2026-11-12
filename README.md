@@ -58,7 +58,7 @@ La CI de GitHub genera el APK de depuración en cada push.
 
 ## Traducciones y accesibilidad
 
-- Todos los textos de la app están en `app/src/main/res/values/strings.xml`. Para otro idioma, copia el fichero a `values-XX/` (p. ej. `values-en/`) y tradúcelo.
+- La app está en español e inglés (según el idioma del móvil). Los textos están en `app/src/main/res/values/strings.xml` (español) y `values-en/strings.xml` (inglés). Para otro idioma, copia el fichero a `values-XX/` (p. ej. `values-en/`) y tradúcelo.
 - Imágenes, gráficos, pegatinas y botones de solo icono tienen descripción para el lector de pantalla (TalkBack).
 
 ## Importar CSV
