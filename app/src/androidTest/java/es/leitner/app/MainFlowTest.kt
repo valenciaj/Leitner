@@ -1,5 +1,6 @@
 package es.leitner.app
 
+import es.leitner.app.ui.ModeNames
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -11,7 +12,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Recorrido completo en modo normal: crear mazo, añadir tarjeta y repasarla. */
+/** Recorrido completo en modo Clásico: crear mazo, añadir tarjeta y repasarla. */
 @RunWith(AndroidJUnit4::class)
 class MainFlowTest {
 
@@ -22,7 +23,7 @@ class MainFlowTest {
     fun crear_mazo_tarjeta_y_repasar() {
         val deckName = "Mazo ${System.currentTimeMillis()}"
 
-        rule.onNodeWithText("Modo normal").performClick()
+        rule.onNodeWithText(ModeNames.NORMAL).performClick()
 
         rule.onNodeWithText("Nuevo mazo").performClick()
         rule.onNode(hasSetTextAction() and hasText("Nombre")).performTextInput(deckName)
