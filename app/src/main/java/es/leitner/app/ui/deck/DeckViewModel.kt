@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import es.leitner.app.data.CardEntity
 import es.leitner.app.data.DeckEntity
 import es.leitner.app.data.LeitnerRepository
+import es.leitner.app.ui.common.CardContent
 import es.leitner.core.LeitnerConfig
 import es.leitner.core.Mode
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,14 +29,18 @@ class DeckViewModel(
     val config: StateFlow<LeitnerConfig> = repository.observeConfig(mode)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LeitnerConfig.defaultFor(mode))
 
-    fun addCard(front: String, back: String) {
-        if (front.isBlank() || back.isBlank()) return
-        viewModelScope.launch { repository.addCard(deckId, front, back) }
+    fun addCard(content: CardContent) {
+        if (!content.isValid) return
+        viewModelScope.launch {
+            repository.addCard(deckId, content.front, content.back, content.imagePath, content.audioPath)
+        }
     }
 
-    fun updateCard(cardId: Long, front: String, back: String) {
-        if (front.isBlank() || back.isBlank()) return
-        viewModelScope.launch { repository.updateCard(cardId, front, back) }
+    fun updateCard(cardId: Long, content: CardContent) {
+        if (!content.isValid) return
+        viewModelScope.launch {
+            repository.updateCard(cardId, content.front, content.back, content.imagePath, content.audioPath)
+        }
     }
 
     fun deleteCard(cardId: Long) {

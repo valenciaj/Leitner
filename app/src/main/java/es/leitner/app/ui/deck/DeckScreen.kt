@@ -8,7 +8,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AssistChip
@@ -29,10 +33,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.leitner.app.data.CardEntity
+import es.leitner.app.data.MediaStorage
+import es.leitner.app.ui.common.CardContent
 import es.leitner.app.ui.common.CardEditDialog
+import es.leitner.app.ui.common.CardImage
 import es.leitner.app.ui.common.ConfirmDialog
 import es.leitner.app.ui.common.TextInputDialog
 import es.leitner.core.Mode
@@ -47,7 +56,7 @@ private sealed interface DeckDialog {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DeckScreen(viewModel: DeckViewModel, onBack: () -> Unit) {
+fun DeckScreen(viewModel: DeckViewModel, media: MediaStorage, onBack: () -> Unit) {
     val deck by viewModel.deck.collectAsStateWithLifecycle()
     val cards by viewModel.cards.collectAsStateWithLifecycle()
     val config by viewModel.config.collectAsStateWithLifecycle()
@@ -116,15 +125,16 @@ fun DeckScreen(viewModel: DeckViewModel, onBack: () -> Unit) {
         null -> Unit
         DeckDialog.NewCard -> CardEditDialog(
             title = "Nueva tarjeta",
+            media = media,
             onDismiss = { dialog = null },
-            onSave = { front, back -> viewModel.addCard(front, back); dialog = null },
+            onSave = { viewModel.addCard(it); dialog = null },
         )
         is DeckDialog.EditCard -> CardEditDialog(
             title = "Editar tarjeta",
-            initialFront = d.card.front,
-            initialBack = d.card.back,
+            media = media,
+            initial = CardContent(d.card.front, d.card.back, d.card.imageUri, d.card.audioPath),
             onDismiss = { dialog = null },
-            onSave = { front, back -> viewModel.updateCard(d.card.id, front, back); dialog = null },
+            onSave = { viewModel.updateCard(d.card.id, it); dialog = null },
             onDelete = { viewModel.deleteCard(d.card.id); dialog = null },
         )
         DeckDialog.Rename -> TextInputDialog(
@@ -150,8 +160,17 @@ private fun CardRow(card: CardEntity, kids: Boolean, onClick: () -> Unit) {
             Modifier.padding(if (kids) 20.dp else 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            card.imageUri?.let {
+                CardImage(
+                    it,
+                    Modifier.size(if (kids) 64.dp else 48.dp).clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop,
+                )
+                Spacer(Modifier.width(12.dp))
+            }
             Column(Modifier.weight(1f)) {
-                Text(card.front, style = MaterialTheme.typography.titleMedium)
+                val front = card.front.ifBlank { if (card.audioPath != null) "🔊" else "🖼" }
+                Text(if (card.audioPath != null && card.front.isNotBlank()) "$front 🔊" else front, style = MaterialTheme.typography.titleMedium)
                 Text(card.back, style = MaterialTheme.typography.bodyLarge)
             }
             AssistChip(onClick = onClick, label = { Text("Caja ${card.box}") })
