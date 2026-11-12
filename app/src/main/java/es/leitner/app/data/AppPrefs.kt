@@ -47,6 +47,18 @@ class AppPrefs(context: Context) {
         get() = prefs.getInt(KEY_REMINDER_MINUTE, 0)
         set(value) = prefs.edit().putInt(KEY_REMINDER_MINUTE, value).apply()
 
+    // ---- Tema ----
+
+    private val _theme = MutableStateFlow(
+        prefs.getString(KEY_THEME, null)?.let { runCatching { ThemeChoice.valueOf(it) }.getOrNull() } ?: ThemeChoice.SYSTEM,
+    )
+    val theme: StateFlow<ThemeChoice> = _theme.asStateFlow()
+
+    fun setTheme(choice: ThemeChoice) {
+        prefs.edit().putString(KEY_THEME, choice.name).apply()
+        _theme.value = choice
+    }
+
     var lastMode: Mode?
         get() = prefs.getString(KEY_LAST_MODE, null)?.let { runCatching { Mode.valueOf(it) }.getOrNull() }
         set(value) = prefs.edit().putString(KEY_LAST_MODE, value?.name).apply()
@@ -55,6 +67,7 @@ class AppPrefs(context: Context) {
         const val KEY_PIN_SALT = "pin_salt"
         const val KEY_PIN_HASH = "pin_hash"
         const val KEY_LAST_MODE = "last_mode"
+        const val KEY_THEME = "theme"
         const val KEY_REMINDER_ON = "reminder_on"
         const val KEY_REMINDER_HOUR = "reminder_hour"
         const val KEY_REMINDER_MINUTE = "reminder_minute"
