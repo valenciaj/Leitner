@@ -1,13 +1,15 @@
 package es.leitner.app.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
+import es.leitner.app.data.ThemeChoice
 import es.leitner.core.Mode
 
 private val NormalLight = lightColorScheme(
@@ -41,9 +43,16 @@ private fun kidsTypography(base: Typography) = base.copy(
     labelLarge = base.labelLarge.copy(fontSize = 22.sp),
 )
 
+/** Tema elegido en Ajustes; lo proporciona MainActivity. */
+val LocalThemeChoice = staticCompositionLocalOf { ThemeChoice.SYSTEM }
+
 @Composable
 fun LeitnerTheme(mode: Mode? = null, content: @Composable () -> Unit) {
-    val dark = isSystemInDarkTheme()
+    val dark = when (LocalThemeChoice.current) {
+        ThemeChoice.SYSTEM -> isSystemInDarkTheme()
+        ThemeChoice.LIGHT -> false
+        ThemeChoice.DARK -> true
+    }
     val colors = when (mode) {
         Mode.KIDS -> if (dark) KidsDark else KidsLight
         else -> if (dark) NormalDark else NormalLight

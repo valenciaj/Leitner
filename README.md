@@ -61,6 +61,10 @@ La CI de GitHub genera el APK de depuración en cada push.
 - La app está en español e inglés (según el idioma del móvil). Los textos están en `app/src/main/res/values/strings.xml` (español) y `values-en/strings.xml` (inglés). Para otro idioma, copia el fichero a `values-XX/` (p. ej. `values-en/`) y tradúcelo.
 - Imágenes, gráficos, pegatinas y botones de solo icono tienen descripción para el lector de pantalla (TalkBack).
 
+## Tema
+
+Ajustes → **Tema**: como el móvil, claro u oscuro.
+
 ## Importar CSV
 
 En la pantalla de un mazo: menú ⋮ → **Importar CSV**. Una tarjeta por línea, `pregunta;respuesta`

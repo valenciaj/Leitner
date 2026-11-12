@@ -113,6 +113,9 @@ fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, backup: Backup
                 )
 
                 HorizontalDivider()
+                ThemeSection(prefs)
+
+                HorizontalDivider()
                 PinSection(prefs)
 
                 HorizontalDivider()

@@ -232,6 +232,11 @@
     <string name="ach_days_50">50 días estudiando</string>
     <string name="ach_days_50_hint">Repasa 50 días distintos</string>
 
+    <string name="theme_title">Tema</string>
+    <string name="theme_system">Como el móvil</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+
     <!-- Notificación -->
     <string name="notif_channel">Recordatorio diario</string>
     <string name="notif_title">¡Hora de repasar!</string>

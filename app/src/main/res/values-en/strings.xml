@@ -230,6 +230,11 @@
     <string name="ach_days_50">50 days studying</string>
     <string name="ach_days_50_hint">Review on 50 different days</string>
 
+    <string name="theme_title">Theme</string>
+    <string name="theme_system">Same as phone</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+
     <!-- Notificación -->
     <string name="notif_channel">Daily reminder</string>
     <string name="notif_title">Time to review!</string>
