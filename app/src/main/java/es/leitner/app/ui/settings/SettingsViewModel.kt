@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 data class SettingsUiState(
     val mode: Mode = Mode.NORMAL,
     val intervals: List<String> = emptyList(),
-    val error: String? = null,
+    val error: LeitnerConfig.Problem? = null,
     val saved: Boolean = false,
 )
 
@@ -50,12 +50,12 @@ class SettingsViewModel(private val repository: LeitnerRepository) : ViewModel()
 
     fun save() {
         val current = _state.value
-        val config = try {
-            LeitnerConfig(current.intervals.map { it.toIntOrNull() ?: 0 })
-        } catch (e: IllegalArgumentException) {
-            _state.value = current.copy(error = e.message, saved = false)
+        val days = current.intervals.map { it.toIntOrNull() ?: 0 }
+        LeitnerConfig.validate(days)?.let { problem ->
+            _state.value = current.copy(error = problem, saved = false)
             return
         }
+        val config = LeitnerConfig(days)
         viewModelScope.launch {
             repository.saveConfig(current.mode, config)
             _state.value = current.copy(error = null, saved = true)

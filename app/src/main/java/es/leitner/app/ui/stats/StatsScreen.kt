@@ -35,9 +35,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.leitner.app.R
+import es.leitner.app.ui.common.centeredMaxWidth
+import es.leitner.app.ui.common.hintRes
 import es.leitner.app.ui.common.modeString
 import es.leitner.app.ui.common.pluralResource
-import es.leitner.app.ui.common.centeredMaxWidth
+import es.leitner.app.ui.common.titleRes
 import es.leitner.core.Achievement
 import es.leitner.core.Mode
 import java.time.LocalDate
@@ -173,9 +175,9 @@ private fun Bar(fraction: Float) {
 @Composable
 private fun Sticker(achievement: Achievement, earned: Boolean, modifier: Modifier = Modifier) {
     val description = if (earned) {
-        stringResource(R.string.cd_sticker_earned, achievement.title)
+        stringResource(R.string.cd_sticker_earned, stringResource(achievement.titleRes))
     } else {
-        stringResource(R.string.cd_sticker_locked, achievement.hint)
+        stringResource(R.string.cd_sticker_locked, stringResource(achievement.hintRes))
     }
     Column(
         modifier.alpha(if (earned) 1f else 0.35f).clearAndSetSemantics { contentDescription = description },
@@ -183,7 +185,7 @@ private fun Sticker(achievement: Achievement, earned: Boolean, modifier: Modifie
     ) {
         Text(if (earned) achievement.emoji else "❔", fontSize = 36.sp)
         Text(
-            if (earned) achievement.title else achievement.hint,
+            stringResource(if (earned) achievement.titleRes else achievement.hintRes),
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
         )

@@ -26,4 +26,11 @@ class LeitnerConfigTest {
     fun `rechaza intervalos de cero dias`() {
         LeitnerConfig(listOf(1, 0, 4))
     }
+
+    @Test
+    fun `validar sin excepciones`() {
+        assertEquals(null, LeitnerConfig.validate(listOf(1, 2)))
+        assertEquals(LeitnerConfig.Problem.BOX_COUNT, LeitnerConfig.validate(listOf(1)))
+        assertEquals(LeitnerConfig.Problem.INTERVAL_RANGE, LeitnerConfig.validate(listOf(1, 400)))
+    }
 }

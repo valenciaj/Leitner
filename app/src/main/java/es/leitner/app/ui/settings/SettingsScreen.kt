@@ -35,6 +35,7 @@ import es.leitner.app.data.AppPrefs
 import es.leitner.app.data.BackupManager
 import es.leitner.app.ui.ModeNames
 import es.leitner.app.ui.common.centeredMaxWidth
+import es.leitner.core.LeitnerConfig
 import es.leitner.core.Mode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,7 +92,17 @@ fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, backup: Backup
                     TextButton(onClick = viewModel::restoreDefaults) { Text(stringResource(R.string.defaults)) }
                 }
 
-                state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                state.error?.let { problem ->
+                    Text(
+                        when (problem) {
+                            LeitnerConfig.Problem.BOX_COUNT ->
+                                stringResource(R.string.err_box_count, LeitnerConfig.MIN_BOXES, LeitnerConfig.MAX_BOXES)
+                            LeitnerConfig.Problem.INTERVAL_RANGE ->
+                                stringResource(R.string.err_interval_range, LeitnerConfig.MAX_INTERVAL_DAYS)
+                        },
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
                 if (state.saved) Text(stringResource(R.string.saved), color = MaterialTheme.colorScheme.primary)
 
                 Button(onClick = viewModel::save, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.save)) }

@@ -1,18 +1,21 @@
 package es.leitner.core
 
-/** Pegatinas que se ganan estudiando (pensadas para el modo niños). */
-enum class Achievement(val emoji: String, val title: String, val hint: String) {
-    FIRST_CORRECT("🌱", "Primer acierto", "Acierta una tarjeta"),
-    CORRECT_10("🐣", "10 aciertos", "Acierta 10 tarjetas"),
-    CORRECT_50("🦊", "50 aciertos", "Acierta 50 tarjetas"),
-    CORRECT_100("🦁", "100 aciertos", "Acierta 100 tarjetas"),
-    CORRECT_500("🐉", "500 aciertos", "Acierta 500 tarjetas"),
-    CORRECT_1000("🦄", "1000 aciertos", "Acierta 1000 tarjetas"),
-    STREAK_3("🔥", "Racha de 3 días", "Repasa 3 días seguidos"),
-    STREAK_7("🌈", "Racha de 7 días", "Repasa 7 días seguidos"),
-    STREAK_30("🚀", "Racha de 30 días", "Repasa 30 días seguidos"),
-    DAYS_10("📚", "10 días estudiando", "Repasa 10 días distintos"),
-    DAYS_50("🏰", "50 días estudiando", "Repasa 50 días distintos"),
+/**
+ * Pegatinas que se ganan estudiando (pensadas para el modo niños).
+ * Los textos (nombre y pista) están en la app, en strings.xml.
+ */
+enum class Achievement(val emoji: String) {
+    FIRST_CORRECT("🌱"),
+    CORRECT_10("🐣"),
+    CORRECT_50("🦊"),
+    CORRECT_100("🦁"),
+    CORRECT_500("🐉"),
+    CORRECT_1000("🦄"),
+    STREAK_3("🔥"),
+    STREAK_7("🌈"),
+    STREAK_30("🚀"),
+    DAYS_10("📚"),
+    DAYS_50("🏰"),
 }
 
 object Achievements {

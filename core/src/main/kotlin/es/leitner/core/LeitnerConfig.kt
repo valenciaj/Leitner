@@ -26,6 +26,9 @@ data class LeitnerConfig(val intervalsDays: List<Int>) {
     /** Formato para guardar en base de datos: "1,2,4,8,16". */
     fun serialize(): String = intervalsDays.joinToString(",")
 
+    /** Por qué una lista de intervalos no vale. */
+    enum class Problem { BOX_COUNT, INTERVAL_RANGE }
+
     companion object {
         const val MIN_BOXES = 2
         const val MAX_BOXES = 10
@@ -37,6 +40,13 @@ data class LeitnerConfig(val intervalsDays: List<Int>) {
         fun defaultFor(mode: Mode): LeitnerConfig = when (mode) {
             Mode.KIDS -> DEFAULT_KIDS
             Mode.NORMAL -> DEFAULT_NORMAL
+        }
+
+        /** Comprueba unos intervalos sin lanzar excepción. Devuelve null si son válidos. */
+        fun validate(intervalsDays: List<Int>): Problem? = when {
+            intervalsDays.size !in MIN_BOXES..MAX_BOXES -> Problem.BOX_COUNT
+            !intervalsDays.all { it in 1..MAX_INTERVAL_DAYS } -> Problem.INTERVAL_RANGE
+            else -> null
         }
 
         fun parse(value: String): LeitnerConfig =
