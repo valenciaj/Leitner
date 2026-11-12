@@ -42,6 +42,14 @@ class MediaStorage(context: Context) {
         }.getOrNull()
     }
 
+    /** Copia un fichero de la carpeta de la app con un nombre nuevo. Devuelve la ruta nueva o null. */
+    fun copy(path: String): String? = runCatching {
+        val source = File(path)
+        val target = File(dir, "${UUID.randomUUID()}.${source.extension}")
+        source.copyTo(target)
+        target.absolutePath
+    }.getOrNull()
+
     /** Borra un fichero, solo si está dentro de la carpeta de la app. */
     fun delete(path: String) {
         val file = File(path)

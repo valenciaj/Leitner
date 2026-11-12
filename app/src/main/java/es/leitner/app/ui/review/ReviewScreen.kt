@@ -88,7 +88,7 @@ private fun Question(
     LaunchedEffect(card.id, state.position, state.revealed) {
         if (kids && state.revealed) {
             player.stop()
-            speaker.speak(card.back)
+            if (card.backAudioPath != null) player.play(card.backAudioPath) else speaker.speak(card.back)
         }
     }
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -141,14 +141,28 @@ private fun Question(
                 }
                 if (state.revealed) {
                     HorizontalDivider(Modifier.padding(vertical = 24.dp))
-                    Text(
-                        card.back,
-                        style = MaterialTheme.typography.headlineSmall,
-                        textAlign = TextAlign.Center,
-                        fontSize = if (kids) 32.sp else 24.sp,
-                    )
-                    TextButton(onClick = { speaker.speak(card.back) }) {
-                        Text("🗣 Leer", fontSize = if (kids) 22.sp else 14.sp)
+                    card.backImageUri?.let {
+                        CardImage(it, Modifier.fillMaxWidth().weight(1f, fill = false).heightIn(max = 220.dp))
+                        Spacer(Modifier.height(12.dp))
+                    }
+                    if (card.back.isNotBlank()) {
+                        Text(
+                            card.back,
+                            style = MaterialTheme.typography.headlineSmall,
+                            textAlign = TextAlign.Center,
+                            fontSize = if (kids) 32.sp else 24.sp,
+                        )
+                    }
+                    val backAudio = card.backAudioPath
+                    if (backAudio != null) {
+                        OutlinedButton(
+                            onClick = { if (player.isPlaying) player.stop() else player.play(backAudio) },
+                            modifier = Modifier.height(if (kids) 64.dp else 48.dp),
+                        ) { Text(if (player.isPlaying) "⏹ Parar" else "🔊 Escuchar", fontSize = if (kids) 24.sp else 16.sp) }
+                    } else if (card.back.isNotBlank()) {
+                        TextButton(onClick = { speaker.speak(card.back) }) {
+                            Text("🗣 Leer", fontSize = if (kids) 22.sp else 14.sp)
+                        }
                     }
                 } else {
                     Spacer(Modifier.height(24.dp))

@@ -7,13 +7,15 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -26,40 +28,35 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import es.leitner.app.data.CardContent
 import es.leitner.app.data.MediaStorage
+import es.leitner.app.media.AudioPlayer
 import es.leitner.app.media.AudioRecorder
 import es.leitner.app.media.rememberAudioPlayer
 import kotlinx.coroutines.launch
 import java.io.File
 
-/** Contenido editable de una tarjeta. */
-data class CardContent(
-    val front: String = "",
-    val back: String = "",
-    val imagePath: String? = null,
-    val audioPath: String? = null,
-) {
-    /** La pregunta puede ser texto, imagen o audio; la respuesta debe tener texto. */
-    val isValid: Boolean
-        get() = (front.isNotBlank() || imagePath != null || audioPath != null) && back.isNotBlank()
-}
+/** Lado de la tarjeta. */
+private enum class Side { FRONT, BACK }
 
 /**
- * Diálogo para crear o editar una tarjeta, con imagen y audio opcionales.
+ * Diálogo para crear o editar una tarjeta, con imagen y audio opcionales en la pregunta y en la respuesta.
  * Si [onDelete] no es null, muestra el botón Borrar.
+ * Si [offerReverse] es true, ofrece crear también la tarjeta al revés; su valor llega en [onSave].
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CardEditDialog(
     title: String,
     media: MediaStorage,
     initial: CardContent = CardContent(),
+    offerReverse: Boolean = false,
     onDismiss: () -> Unit,
-    onSave: (CardContent) -> Unit,
+    onSave: (content: CardContent, alsoReversed: Boolean) -> Unit,
     onDelete: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
@@ -71,7 +68,12 @@ fun CardEditDialog(
     var back by remember { mutableStateOf(initial.back) }
     var imagePath by remember { mutableStateOf(initial.imagePath) }
     var audioPath by remember { mutableStateOf(initial.audioPath) }
-    var recordingFile by remember { mutableStateOf<File?>(null) }
+    var backImagePath by remember { mutableStateOf(initial.backImagePath) }
+    var backAudioPath by remember { mutableStateOf(initial.backAudioPath) }
+    var alsoReversed by remember { mutableStateOf(false) }
+    var recording by remember { mutableStateOf<Pair<Side, File>?>(null) }
+    var pickingFor by remember { mutableStateOf(Side.FRONT) }
+    var recordFor by remember { mutableStateOf(Side.FRONT) }
     var confirmDelete by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
 
@@ -86,18 +88,19 @@ fun CardEditDialog(
         onDispose {
             if (recorder.isRecording) {
                 recorder.stop()
-                recordingFile?.delete()
+                recording?.second?.delete()
             }
         }
     }
 
     val pickImage = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
+            val side = pickingFor
             scope.launch {
                 val path = media.importImage(uri)
                 if (path != null) {
                     created += path
-                    imagePath = path
+                    if (side == Side.FRONT) imagePath = path else backImagePath = path
                 } else {
                     message = "No se pudo cargar la imagen"
                 }
@@ -105,20 +108,20 @@ fun CardEditDialog(
         }
     }
 
-    fun startRecording() {
+    fun startRecording(side: Side) {
         player.stop()
         val file = media.newAudioFile()
         runCatching { recorder.start(file) }
-            .onSuccess { recordingFile = file; message = null }
+            .onSuccess { recording = side to file; message = null }
             .onFailure { file.delete(); message = "No se pudo grabar" }
     }
 
     fun stopRecording() {
-        val file = recordingFile ?: return
-        recordingFile = null
+        val (side, file) = recording ?: return
+        recording = null
         if (recorder.stop()) {
             created += file.absolutePath
-            audioPath = file.absolutePath
+            if (side == Side.FRONT) audioPath = file.absolutePath else backAudioPath = file.absolutePath
         } else {
             file.delete()
             message = "Grabación demasiado corta"
@@ -126,7 +129,7 @@ fun CardEditDialog(
     }
 
     val askMic = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) startRecording() else message = "Sin permiso de micrófono no se puede grabar"
+        if (granted) startRecording(recordFor) else message = "Sin permiso de micrófono no se puede grabar"
     }
 
     if (confirmDelete && onDelete != null) {
@@ -140,12 +143,40 @@ fun CardEditDialog(
         return
     }
 
-    val content = CardContent(front.trim(), back.trim(), imagePath, audioPath)
+    val content = CardContent(front.trim(), back.trim(), imagePath, audioPath, backImagePath, backAudioPath)
     val dismiss = {
         player.stop()
         if (recorder.isRecording) stopRecording()
-        cleanup(setOf(initial.imagePath, initial.audioPath))
+        cleanup(initial.files)
         onDismiss()
+    }
+
+    @Composable
+    fun Media(side: Side) {
+        MediaButtons(
+            imagePath = if (side == Side.FRONT) imagePath else backImagePath,
+            audioPath = if (side == Side.FRONT) audioPath else backAudioPath,
+            isRecording = recording?.first == side,
+            recordingOther = recording != null && recording?.first != side,
+            player = player,
+            onPickImage = {
+                pickingFor = side
+                pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            onRemoveImage = { if (side == Side.FRONT) imagePath = null else backImagePath = null },
+            onRecord = {
+                val granted = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
+                    PackageManager.PERMISSION_GRANTED
+                if (granted) {
+                    startRecording(side)
+                } else {
+                    recordFor = side
+                    askMic.launch(Manifest.permission.RECORD_AUDIO)
+                }
+            },
+            onStopRecording = ::stopRecording,
+            onRemoveAudio = { player.stop(); if (side == Side.FRONT) audioPath = null else backAudioPath = null },
+        )
     }
 
     AlertDialog(
@@ -162,43 +193,7 @@ fun CardEditDialog(
                     label = { Text("Pregunta") },
                     modifier = Modifier.fillMaxWidth(),
                 )
-
-                imagePath?.let {
-                    CardImage(it, Modifier.fillMaxWidth().heightIn(max = 180.dp))
-                }
-
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = {
-                        pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                    }) { Text(if (imagePath == null) "📷 Imagen" else "📷 Cambiar") }
-                    if (imagePath != null) {
-                        TextButton(onClick = { imagePath = null }) { Text("Quitar imagen") }
-                    }
-                }
-
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (recordingFile != null) {
-                        OutlinedButton(onClick = ::stopRecording) {
-                            Text("⏹ Parar", color = MaterialTheme.colorScheme.error)
-                        }
-                    } else {
-                        OutlinedButton(onClick = {
-                            val granted = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
-                                PackageManager.PERMISSION_GRANTED
-                            if (granted) startRecording() else askMic.launch(Manifest.permission.RECORD_AUDIO)
-                        }) { Text(if (audioPath == null) "🎤 Grabar" else "🎤 Regrabar") }
-                    }
-                    audioPath?.let { path ->
-                        if (recordingFile == null) {
-                            OutlinedButton(onClick = { if (player.isPlaying) player.stop() else player.play(path) }) {
-                                Text(if (player.isPlaying) "⏹" else "🔊 Escuchar")
-                            }
-                            TextButton(onClick = { player.stop(); audioPath = null }) { Text("Quitar audio") }
-                        }
-                    }
-                }
-                if (recordingFile != null) Text("Grabando…", color = MaterialTheme.colorScheme.error)
-                message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                Media(Side.FRONT)
 
                 OutlinedTextField(
                     value = back,
@@ -206,6 +201,17 @@ fun CardEditDialog(
                     label = { Text("Respuesta") },
                     modifier = Modifier.fillMaxWidth(),
                 )
+                Media(Side.BACK)
+
+                if (recording != null) Text("Grabando…", color = MaterialTheme.colorScheme.error)
+                message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+
+                if (offerReverse) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = alsoReversed, onCheckedChange = { alsoReversed = it })
+                        Text("Crear también al revés")
+                    }
+                }
 
                 if (onDelete != null) {
                     TextButton(onClick = { confirmDelete = true }) {
@@ -218,12 +224,55 @@ fun CardEditDialog(
             TextButton(
                 onClick = {
                     player.stop()
-                    cleanup(setOf(content.imagePath, content.audioPath))
-                    onSave(content)
+                    cleanup(content.files)
+                    onSave(content, offerReverse && alsoReversed)
                 },
-                enabled = content.isValid && recordingFile == null,
+                enabled = content.isValid && recording == null,
             ) { Text("Guardar") }
         },
         dismissButton = { TextButton(onClick = dismiss) { Text("Cancelar") } },
     )
+}
+
+/** Imagen y audio de un lado de la tarjeta. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun MediaButtons(
+    imagePath: String?,
+    audioPath: String?,
+    isRecording: Boolean,
+    recordingOther: Boolean,
+    player: AudioPlayer,
+    onPickImage: () -> Unit,
+    onRemoveImage: () -> Unit,
+    onRecord: () -> Unit,
+    onStopRecording: () -> Unit,
+    onRemoveAudio: () -> Unit,
+) {
+    imagePath?.let {
+        CardImage(it, Modifier.fillMaxWidth().heightIn(max = 180.dp))
+    }
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedButton(onClick = onPickImage) { Text(if (imagePath == null) "📷 Imagen" else "📷 Cambiar") }
+        if (imagePath != null) {
+            TextButton(onClick = onRemoveImage) { Text("Quitar imagen") }
+        }
+    }
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (isRecording) {
+            OutlinedButton(onClick = onStopRecording) {
+                Text("⏹ Parar", color = MaterialTheme.colorScheme.error)
+            }
+        } else {
+            OutlinedButton(onClick = onRecord, enabled = !recordingOther) {
+                Text(if (audioPath == null) "🎤 Grabar" else "🎤 Regrabar")
+            }
+            audioPath?.let { path ->
+                OutlinedButton(onClick = { if (player.isPlaying) player.stop() else player.play(path) }) {
+                    Text(if (player.isPlaying) "⏹" else "🔊 Escuchar")
+                }
+                TextButton(onClick = onRemoveAudio) { Text("Quitar audio") }
+            }
+        }
+    }
 }

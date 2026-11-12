@@ -44,6 +44,13 @@ La CI de GitHub genera el APK de depuración en cada push.
 - Con varios mazos pendientes aparece **Repasar todo**.
 - **🗣 Leer** lee la tarjeta en voz alta. En Peques se lee sola.
 
+## Tarjetas
+
+- Pregunta y respuesta pueden llevar texto, imagen y audio.
+- **Crear también al revés** (al crear una tarjeta) o menú ⋮ → **Crear tarjetas al revés** (todo el mazo).
+- Con más de 5 tarjetas aparece un buscador en el mazo.
+- Menú ⋮ → **Exportar CSV**: guarda las tarjetas con texto en formato `pregunta;respuesta`.
+
 ## Importar CSV
 
 En la pantalla de un mazo: menú ⋮ → **Importar CSV**. Una tarjeta por línea, `pregunta;respuesta`

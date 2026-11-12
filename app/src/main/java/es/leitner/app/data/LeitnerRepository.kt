@@ -45,33 +45,59 @@ class LeitnerRepository(
 
     /** Borra el mazo, todas sus tarjetas y sus imágenes y audios. */
     suspend fun deleteDeck(deckId: Long) {
-        val files = cards.imagePathsOfDeck(deckId) + cards.audioPathsOfDeck(deckId)
+        val files = cards.cardsOfDeck(deckId).flatMap { it.content().files }
         decks.deleteById(deckId)
         files.forEach(media::delete)
     }
 
     // ---- Tarjetas ----
 
-    suspend fun addCard(
-        deckId: Long,
-        front: String,
-        back: String,
-        imagePath: String? = null,
-        audioPath: String? = null,
-    ): Long {
+    suspend fun addCard(deckId: Long, content: CardContent): Long {
         val progress = LeitnerScheduler.newCard(today())
         return cards.insert(
             CardEntity(
                 deckId = deckId,
-                front = front.trim(),
-                back = back.trim(),
-                imageUri = imagePath,
-                audioPath = audioPath,
+                front = content.front.trim(),
+                back = content.back.trim(),
+                imageUri = content.imagePath,
+                audioPath = content.audioPath,
+                backImageUri = content.backImagePath,
+                backAudioPath = content.backAudioPath,
                 box = progress.box,
                 nextReviewDay = progress.nextReviewDay,
             ),
         )
     }
+
+    /**
+     * Añade la tarjeta inversa (respuesta → pregunta) de [content], con copias propias de sus ficheros.
+     * Si el mazo ya tiene esa tarjeta inversa (mismo texto), no hace nada. Devuelve true si la añadió.
+     */
+    suspend fun addReverse(deckId: Long, content: CardContent): Boolean {
+        val reversed = content.reversed()
+        if (!reversed.isValid) return false
+        val front = reversed.front.trim()
+        val back = reversed.back.trim()
+        // Solo se puede comprobar si hay texto; las tarjetas de solo imagen o audio se añaden siempre.
+        val exists = (front.isNotEmpty() || back.isNotEmpty()) && cards.cardsOfDeck(deckId).any {
+            it.front.equals(front, ignoreCase = true) && it.back.equals(back, ignoreCase = true)
+        }
+        if (exists) return false
+        addCard(
+            deckId,
+            reversed.copy(
+                imagePath = reversed.imagePath?.let(media::copy),
+                audioPath = reversed.audioPath?.let(media::copy),
+                backImagePath = reversed.backImagePath?.let(media::copy),
+                backAudioPath = reversed.backAudioPath?.let(media::copy),
+            ),
+        )
+        return true
+    }
+
+    /** Crea la tarjeta inversa de todas las del mazo que aún no la tengan. Devuelve cuántas creó. */
+    suspend fun addReverseForDeck(deckId: Long): Int =
+        cards.cardsOfDeck(deckId).sortedBy { it.id }.count { addReverse(deckId, it.content()) }
 
     /** Añade muchas tarjetas de texto de golpe (importar CSV). */
     suspend fun addCards(deckId: Long, items: List<Pair<String, String>>) {
@@ -94,18 +120,24 @@ class LeitnerRepository(
     suspend fun card(cardId: Long): CardEntity? = cards.get(cardId)
 
     /** Editar no cambia la caja ni la fecha de repaso. Borra los ficheros que se sustituyen. */
-    suspend fun updateCard(cardId: Long, front: String, back: String, imagePath: String?, audioPath: String?) {
+    suspend fun updateCard(cardId: Long, content: CardContent) {
         val old = cards.get(cardId) ?: return
-        cards.updateContent(cardId, front.trim(), back.trim(), imagePath, audioPath)
-        if (old.imageUri != imagePath) old.imageUri?.let(media::delete)
-        if (old.audioPath != audioPath) old.audioPath?.let(media::delete)
+        cards.updateContent(
+            cardId,
+            content.front.trim(),
+            content.back.trim(),
+            content.imagePath,
+            content.audioPath,
+            content.backImagePath,
+            content.backAudioPath,
+        )
+        (old.content().files - content.files).forEach(media::delete)
     }
 
     suspend fun deleteCard(cardId: Long) {
         val old = cards.get(cardId) ?: return
         cards.deleteById(cardId)
-        old.imageUri?.let(media::delete)
-        old.audioPath?.let(media::delete)
+        old.content().files.forEach(media::delete)
     }
 
     /** Pendientes de hoy de un mazo, o de todos los mazos del modo si [deckId] es [ALL_DECKS]. */
