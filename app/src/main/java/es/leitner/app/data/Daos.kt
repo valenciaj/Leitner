@@ -71,8 +71,14 @@ interface CardDao {
     @Query("DELETE FROM cards WHERE id = :id")
     suspend fun deleteById(id: Long)
 
-    @Query("UPDATE cards SET front = :front, back = :back WHERE id = :id")
-    suspend fun updateText(id: Long, front: String, back: String)
+    @Query("UPDATE cards SET front = :front, back = :back, imageUri = :imagePath, audioPath = :audioPath WHERE id = :id")
+    suspend fun updateContent(id: Long, front: String, back: String, imagePath: String?, audioPath: String?)
+
+    @Query("SELECT imageUri FROM cards WHERE deckId = :deckId AND imageUri IS NOT NULL")
+    suspend fun imagePathsOfDeck(deckId: Long): List<String>
+
+    @Query("SELECT audioPath FROM cards WHERE deckId = :deckId AND audioPath IS NOT NULL")
+    suspend fun audioPathsOfDeck(deckId: Long): List<String>
 
     @Query("SELECT * FROM cards WHERE deckId = :deckId ORDER BY createdAt")
     fun observeByDeck(deckId: Long): Flow<List<CardEntity>>

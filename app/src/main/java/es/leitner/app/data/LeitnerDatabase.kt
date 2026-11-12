@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [DeckEntity::class, CardEntity::class, BoxSettingsEntity::class, ReviewLogEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -23,8 +23,15 @@ abstract class LeitnerDatabase : RoomDatabase() {
     companion object {
         fun create(context: Context): LeitnerDatabase =
             Room.databaseBuilder(context, LeitnerDatabase::class.java, "leitner.db")
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build()
+
+        /** v3: audio opcional en las tarjetas. */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `cards` ADD COLUMN `audioPath` TEXT")
+            }
+        }
 
         /** v2: tabla review_log para las estadísticas. */
         val MIGRATION_1_2 = object : Migration(1, 2) {

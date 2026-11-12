@@ -12,6 +12,7 @@ import java.time.LocalDate
 /** Punto único de acceso a los datos. La UI no habla con Room directamente. */
 class LeitnerRepository(
     private val db: LeitnerDatabase,
+    private val media: MediaStorage,
     private val clock: () -> Long = { LocalDate.now().toEpochDay() },
 ) {
     private val decks = db.deckDao()
@@ -42,19 +43,30 @@ class LeitnerRepository(
 
     suspend fun renameDeck(deckId: Long, name: String) = decks.rename(deckId, name.trim())
 
-    /** Borra el mazo y todas sus tarjetas. */
-    suspend fun deleteDeck(deckId: Long) = decks.deleteById(deckId)
+    /** Borra el mazo, todas sus tarjetas y sus imágenes y audios. */
+    suspend fun deleteDeck(deckId: Long) {
+        val files = cards.imagePathsOfDeck(deckId) + cards.audioPathsOfDeck(deckId)
+        decks.deleteById(deckId)
+        files.forEach(media::delete)
+    }
 
     // ---- Tarjetas ----
 
-    suspend fun addCard(deckId: Long, front: String, back: String, imageUri: String? = null): Long {
+    suspend fun addCard(
+        deckId: Long,
+        front: String,
+        back: String,
+        imagePath: String? = null,
+        audioPath: String? = null,
+    ): Long {
         val progress = LeitnerScheduler.newCard(today())
         return cards.insert(
             CardEntity(
                 deckId = deckId,
                 front = front.trim(),
                 back = back.trim(),
-                imageUri = imageUri,
+                imageUri = imagePath,
+                audioPath = audioPath,
                 box = progress.box,
                 nextReviewDay = progress.nextReviewDay,
             ),
@@ -65,11 +77,20 @@ class LeitnerRepository(
 
     suspend fun card(cardId: Long): CardEntity? = cards.get(cardId)
 
-    /** Editar el texto no cambia la caja ni la fecha de repaso. */
-    suspend fun updateCard(cardId: Long, front: String, back: String) =
-        cards.updateText(cardId, front.trim(), back.trim())
+    /** Editar no cambia la caja ni la fecha de repaso. Borra los ficheros que se sustituyen. */
+    suspend fun updateCard(cardId: Long, front: String, back: String, imagePath: String?, audioPath: String?) {
+        val old = cards.get(cardId) ?: return
+        cards.updateContent(cardId, front.trim(), back.trim(), imagePath, audioPath)
+        if (old.imageUri != imagePath) old.imageUri?.let(media::delete)
+        if (old.audioPath != audioPath) old.audioPath?.let(media::delete)
+    }
 
-    suspend fun deleteCard(cardId: Long) = cards.deleteById(cardId)
+    suspend fun deleteCard(cardId: Long) {
+        val old = cards.get(cardId) ?: return
+        cards.deleteById(cardId)
+        old.imageUri?.let(media::delete)
+        old.audioPath?.let(media::delete)
+    }
 
     suspend fun dueCards(deckId: Long): List<CardEntity> = cards.dueCards(deckId, today())
 

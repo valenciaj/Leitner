@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -18,11 +19,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +34,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import es.leitner.app.media.rememberAudioPlayer
+import es.leitner.app.ui.common.CardImage
 import es.leitner.core.Mode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,6 +70,12 @@ private fun Question(
     onAnswer: (Boolean) -> Unit,
 ) {
     val card = state.card ?: return
+    val player = rememberAudioPlayer()
+    // En modo niños el audio suena solo al mostrar cada tarjeta.
+    LaunchedEffect(card.id) {
+        player.stop()
+        if (kids) card.audioPath?.let(player::play)
+    }
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         LinearProgressIndicator(
             progress = { (state.position - 1).toFloat() / state.total },
@@ -80,12 +91,25 @@ private fun Question(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(
-                    card.front,
-                    style = MaterialTheme.typography.headlineMedium,
-                    textAlign = TextAlign.Center,
-                    fontSize = if (kids) 36.sp else 28.sp,
-                )
+                card.imageUri?.let {
+                    CardImage(it, Modifier.fillMaxWidth().weight(1f, fill = false).heightIn(max = 260.dp))
+                    Spacer(Modifier.height(16.dp))
+                }
+                if (card.front.isNotBlank()) {
+                    Text(
+                        card.front,
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center,
+                        fontSize = if (kids) 36.sp else 28.sp,
+                    )
+                }
+                card.audioPath?.let { path ->
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedButton(
+                        onClick = { if (player.isPlaying) player.stop() else player.play(path) },
+                        modifier = Modifier.height(if (kids) 64.dp else 48.dp),
+                    ) { Text(if (player.isPlaying) "⏹ Parar" else "🔊 Escuchar", fontSize = if (kids) 24.sp else 16.sp) }
+                }
                 if (state.revealed) {
                     HorizontalDivider(Modifier.padding(vertical = 24.dp))
                     Text(

@@ -40,64 +40,6 @@ fun TextInputDialog(
     )
 }
 
-/** Diálogo para crear o editar una tarjeta. Si [onDelete] no es null, muestra el botón Borrar. */
-@Composable
-fun CardEditDialog(
-    title: String,
-    initialFront: String = "",
-    initialBack: String = "",
-    onDismiss: () -> Unit,
-    onSave: (front: String, back: String) -> Unit,
-    onDelete: (() -> Unit)? = null,
-) {
-    var front by remember { mutableStateOf(initialFront) }
-    var back by remember { mutableStateOf(initialBack) }
-    var confirmDelete by remember { mutableStateOf(false) }
-
-    if (confirmDelete && onDelete != null) {
-        ConfirmDialog(
-            title = "¿Borrar tarjeta?",
-            message = "No se puede deshacer.",
-            confirmText = "Borrar",
-            onDismiss = { confirmDelete = false },
-            onConfirm = onDelete,
-        )
-        return
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = front,
-                    onValueChange = { front = it },
-                    label = { Text("Pregunta") },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                OutlinedTextField(
-                    value = back,
-                    onValueChange = { back = it },
-                    label = { Text("Respuesta") },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                if (onDelete != null) {
-                    TextButton(onClick = { confirmDelete = true }) {
-                        Text("Borrar tarjeta", color = MaterialTheme.colorScheme.error)
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { onSave(front, back) }, enabled = front.isNotBlank() && back.isNotBlank()) {
-                Text("Guardar")
-            }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
-    )
-}
-
 @Composable
 fun ConfirmDialog(
     title: String,

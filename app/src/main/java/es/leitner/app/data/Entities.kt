@@ -33,8 +33,10 @@ data class CardEntity(
     val deckId: Long,
     val front: String,
     val back: String,
-    /** Ruta local de una imagen opcional (pensado para el modo niños). */
+    /** Ruta local (en filesDir) de una imagen opcional de la pregunta. */
     val imageUri: String? = null,
+    /** Ruta local (en filesDir) de un audio opcional de la pregunta. */
+    val audioPath: String? = null,
     val box: Int = 1,
     val nextReviewDay: Long,
     val createdAt: Long = System.currentTimeMillis(),

@@ -28,7 +28,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val repository = (application as LeitnerApp).repository
+        val app = application as LeitnerApp
+        val repository = app.repository
 
         setContent {
             val nav = rememberNavController()
@@ -68,7 +69,7 @@ class MainActivity : ComponentActivity() {
                     val deckId = entry.arguments?.getLong("deckId") ?: 0L
                     val vm: DeckViewModel = viewModel(factory = DeckViewModel.Factory(repository, mode, deckId))
                     LeitnerTheme(mode) {
-                        DeckScreen(viewModel = vm, onBack = { nav.popBackStack() })
+                        DeckScreen(viewModel = vm, media = app.media, onBack = { nav.popBackStack() })
                     }
                 }
                 composable(
