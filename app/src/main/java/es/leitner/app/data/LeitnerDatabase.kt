@@ -19,6 +19,7 @@ abstract class LeitnerDatabase : RoomDatabase() {
     abstract fun cardDao(): CardDao
     abstract fun boxSettingsDao(): BoxSettingsDao
     abstract fun statsDao(): StatsDao
+    abstract fun backupDao(): BackupDao
 
     companion object {
         fun create(context: Context): LeitnerDatabase =

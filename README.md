@@ -41,3 +41,9 @@ La CI de GitHub genera el APK de depuración en cada push.
 En la pantalla de un mazo: menú ⋮ → **Importar CSV**. Una tarjeta por línea, `pregunta;respuesta`
 (también vale coma o tabulador). La primera línea se salta si es una cabecera (`pregunta;respuesta`).
 Se aceptan comillas para textos con separadores o saltos de línea, y ficheros guardados desde Excel.
+
+## Copia de seguridad
+
+Ajustes → **Copia de seguridad**: *Exportar* guarda un `.zip` con todos los mazos, tarjetas, imágenes,
+audios, ajustes de cajas y estadísticas de los dos modos. *Importar* sustituye todos los datos actuales
+por los de la copia (pide confirmación).
