@@ -268,4 +268,13 @@
     <string name="practice">🎯 Practicar</string>
     <string name="practice_title">Práctica</string>
     <string name="practice_note">Era una práctica: las cajas y las estadísticas no cambian.</string>
+    <string name="share_deck">📤 Compartir mazo</string>
+    <string name="share_deck_chooser">Compartir mazo</string>
+    <string name="share_deck_failed">No se pudo preparar el mazo para compartir</string>
+    <string name="import_deck">📥 Importar mazo</string>
+    <plurals name="msg_deck_imported">
+        <item quantity="one">Mazo «%1$s» importado: %2$d tarjeta</item>
+        <item quantity="other">Mazo «%1$s» importado: %2$d tarjetas</item>
+    </plurals>
+    <string name="msg_not_a_deck">Ese fichero no es un mazo compartido de Leitner</string>
 </resources>

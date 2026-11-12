@@ -116,6 +116,7 @@ class MainActivity : ComponentActivity() {
                                 Box(modifier) {
                                     HomeScreen(
                                         viewModel = vm,
+                                        deckShare = app.deckShare,
                                         onChangeMode = { if (locked) askPin = true else leave() },
                                         onOpenDeck = { deckId ->
                                             if (wide) selectedDeck = deckId else nav.navigate("deck/${mode.name}/$deckId")
@@ -152,6 +153,7 @@ class MainActivity : ComponentActivity() {
                                             DeckScreen(
                                                 viewModel = deckVm,
                                                 media = app.media,
+                                                deckShare = app.deckShare,
                                                 pinCheck = if (hasPin) prefs::checkPin else null,
                                                 onBack = { selectedDeck = null },
                                                 onPractice = { nav.navigate("practice/${mode.name}/$deckId") },
@@ -176,6 +178,7 @@ class MainActivity : ComponentActivity() {
                             DeckScreen(
                                 viewModel = vm,
                                 media = app.media,
+                                deckShare = app.deckShare,
                                 pinCheck = if (hasPin) prefs::checkPin else null,
                                 onBack = { nav.popBackStack() },
                                 onPractice = { nav.navigate("practice/${mode.name}/$deckId") },
