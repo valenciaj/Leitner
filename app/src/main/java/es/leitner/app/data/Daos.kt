@@ -59,6 +59,9 @@ interface CardDao {
     @Insert
     suspend fun insert(card: CardEntity): Long
 
+    @Insert
+    suspend fun insertAll(cards: List<CardEntity>)
+
     @Update
     suspend fun update(card: CardEntity)
 

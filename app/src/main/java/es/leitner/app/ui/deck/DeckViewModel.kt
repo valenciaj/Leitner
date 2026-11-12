@@ -9,7 +9,10 @@ import es.leitner.app.data.LeitnerRepository
 import es.leitner.app.ui.common.CardContent
 import es.leitner.core.LeitnerConfig
 import es.leitner.core.Mode
+import es.leitner.core.CsvImport
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -40,6 +43,29 @@ class DeckViewModel(
         if (!content.isValid) return
         viewModelScope.launch {
             repository.updateCard(cardId, content.front, content.back, content.imagePath, content.audioPath)
+        }
+    }
+
+    private val _message = MutableStateFlow<String?>(null)
+    /** Mensaje corto para mostrar (p. ej. resultado de importar). */
+    val message: StateFlow<String?> = _message.asStateFlow()
+
+    fun clearMessage() {
+        _message.value = null
+    }
+
+    fun importCsv(text: String?) {
+        if (text == null) {
+            _message.value = "No se pudo leer el fichero"
+            return
+        }
+        val result = CsvImport.parse(text)
+        viewModelScope.launch {
+            if (result.cards.isNotEmpty()) repository.addCards(deckId, result.cards)
+            _message.value = buildString {
+                append(if (result.cards.size == 1) "1 tarjeta importada" else "${result.cards.size} tarjetas importadas")
+                if (result.skipped > 0) append(" · ${result.skipped} líneas incompletas")
+            }
         }
     }
 
