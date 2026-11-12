@@ -43,6 +43,7 @@ import es.leitner.app.media.rememberSpeaker
 import es.leitner.app.ui.common.CardImage
 import es.leitner.app.ui.common.modeString
 import es.leitner.app.ui.common.pluralResource
+import es.leitner.app.ui.common.centeredMaxWidth
 import es.leitner.core.Mode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,7 +63,7 @@ fun ReviewScreen(viewModel: ReviewViewModel, onClose: () -> Unit) {
             )
         },
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
+        Box(Modifier.fillMaxSize().padding(padding).centeredMaxWidth().padding(16.dp)) {
             when {
                 state.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 state.finished -> Summary(state, kids, onClose)

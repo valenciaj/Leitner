@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +48,8 @@ fun HomeScreen(
     onOpenDeck: (Long) -> Unit,
     onReview: (Long) -> Unit,
     onOpenStats: () -> Unit,
+    /** Mazo abierto en el panel derecho (solo en tablet), para resaltarlo. */
+    selectedDeckId: Long? = null,
 ) {
     val decks by viewModel.decks.collectAsStateWithLifecycle()
     var showDialog by remember { mutableStateOf(false) }
@@ -94,7 +97,7 @@ fun HomeScreen(
                         ) { Text(modeString(kids, R.string.review_all_kids, R.string.review_all, totalDue)) }
                     }
                 }
-                items(decks, key = { it.id }) { deck -> DeckRow(deck, kids, onClick = { onOpenDeck(deck.id) }, onReview = { onReview(deck.id) }) }
+                items(decks, key = { it.id }) { deck -> DeckRow(deck, kids, selected = deck.id == selectedDeckId, onClick = { onOpenDeck(deck.id) }, onReview = { onReview(deck.id) }) }
             }
         }
     }
@@ -113,8 +116,11 @@ fun HomeScreen(
 }
 
 @Composable
-private fun DeckRow(deck: DeckSummary, kids: Boolean, onClick: () -> Unit, onReview: () -> Unit) {
-    Card(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
+private fun DeckRow(deck: DeckSummary, kids: Boolean, selected: Boolean, onClick: () -> Unit, onReview: () -> Unit) {
+    Card(
+        Modifier.fillMaxWidth().clickable(onClick = onClick),
+        colors = if (selected) CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer) else CardDefaults.cardColors(),
+    ) {
         Row(Modifier.padding(if (kids) 24.dp else 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(deck.name, style = MaterialTheme.typography.titleMedium)
