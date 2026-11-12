@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import es.leitner.app.data.AnswerRecord
+import es.leitner.app.data.AppPrefs
 import es.leitner.app.data.CardEntity
 import es.leitner.app.data.LeitnerRepository
 import es.leitner.core.Achievement
+import es.leitner.core.AnswerCheck
 import es.leitner.core.Mode
 import es.leitner.core.ReviewSession
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,6 +32,11 @@ data class ReviewUiState(
     val correct: Int = 0,
     val wrong: Int = 0,
     val stars: Int = 0,
+    /** Modo "escribir la respuesta" activado. */
+    val typeAnswer: Boolean = false,
+    /** Resultado de comprobar lo escrito: null si no se ha comprobado. */
+    val typedCorrect: Boolean? = null,
+    val typedText: String = "",
     /** Pegatinas ganadas en esta sesión. */
     val newAchievements: List<Achievement> = emptyList(),
 )
@@ -38,6 +45,7 @@ class ReviewViewModel(
     private val repository: LeitnerRepository,
     val mode: Mode,
     private val deckId: Long,
+    private val prefs: AppPrefs,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ReviewUiState())
@@ -64,6 +72,22 @@ class ReviewViewModel(
 
     fun reveal() {
         _state.value = _state.value.copy(revealed = true)
+    }
+
+    fun toggleTypeAnswer() {
+        val on = !_state.value.typeAnswer
+        prefs.setTypeAnswer(mode, on)
+        _state.value = _state.value.copy(typeAnswer = on)
+    }
+
+    /** Comprueba lo escrito y muestra la respuesta. */
+    fun check(typed: String) {
+        val card = _state.value.card ?: return
+        _state.value = _state.value.copy(
+            revealed = true,
+            typedText = typed.trim(),
+            typedCorrect = AnswerCheck.matches(typed, card.back),
+        )
     }
 
     fun answer(correct: Boolean) {
@@ -112,6 +136,7 @@ class ReviewViewModel(
             correct = session.correct,
             wrong = session.wrong,
             stars = session.stars(),
+            typeAnswer = prefs.typeAnswer(mode),
         )
     }
 
@@ -119,8 +144,9 @@ class ReviewViewModel(
         private val repository: LeitnerRepository,
         private val mode: Mode,
         private val deckId: Long,
+        private val prefs: AppPrefs,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = ReviewViewModel(repository, mode, deckId) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = ReviewViewModel(repository, mode, deckId, prefs) as T
     }
 }

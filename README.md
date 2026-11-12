@@ -42,6 +42,7 @@ La CI de GitHub genera el APK de depuración en cada push.
 - Las falladas se repiten al final de la sesión hasta acertarlas. Solo cuenta el primer intento.
 - **↶ Deshacer** anula la última respuesta.
 - Con varios mazos pendientes aparece **Repasar todo**.
+- **✍** (arriba en el repaso) activa escribir la respuesta: la app la comprueba sin tener en cuenta mayúsculas, tildes ni signos. Si la respuesta tiene varias opciones separadas por "/" o ";", vale cualquiera.
 - **🗣 Leer** lee la tarjeta en voz alta. En Peques se lee sola.
 
 ## Tarjetas

@@ -33,6 +33,12 @@ class AppPrefs(context: Context) {
         _hasPin.value = false
     }
 
+    // ---- Escribir la respuesta (por modo) ----
+
+    fun typeAnswer(mode: Mode): Boolean = prefs.getBoolean(KEY_TYPE_ANSWER + mode.name, false)
+
+    fun setTypeAnswer(mode: Mode, on: Boolean) = prefs.edit().putBoolean(KEY_TYPE_ANSWER + mode.name, on).apply()
+
     // ---- Recordatorio diario ----
 
     var reminderEnabled: Boolean
@@ -68,6 +74,7 @@ class AppPrefs(context: Context) {
         const val KEY_PIN_HASH = "pin_hash"
         const val KEY_LAST_MODE = "last_mode"
         const val KEY_THEME = "theme"
+        const val KEY_TYPE_ANSWER = "type_answer_"
         const val KEY_REMINDER_ON = "reminder_on"
         const val KEY_REMINDER_HOUR = "reminder_hour"
         const val KEY_REMINDER_MINUTE = "reminder_minute"

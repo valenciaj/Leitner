@@ -237,6 +237,13 @@
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Oscuro</string>
 
+    <string name="type_answer_on">Activar escribir la respuesta</string>
+    <string name="type_answer_off">Desactivar escribir la respuesta</string>
+    <string name="your_answer">Tu respuesta</string>
+    <string name="check">Comprobar</string>
+    <string name="typed_right">✅ ¡Correcto!</string>
+    <string name="typed_wrong">❌ Escribiste: %1$s</string>
+
     <!-- Notificación -->
     <string name="notif_channel">Recordatorio diario</string>
     <string name="notif_title">¡Hora de repasar!</string>
