@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -20,6 +22,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,12 +30,16 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,6 +66,11 @@ fun ReviewScreen(viewModel: ReviewViewModel, onClose: () -> Unit) {
                 title = { Text(modeString(kids, R.string.review_title_kids, R.string.review_title)) },
                 navigationIcon = { TextButton(onClick = onClose) { Text(stringResource(R.string.exit)) } },
                 actions = {
+                    val typeLabel = stringResource(if (state.typeAnswer) R.string.type_answer_off else R.string.type_answer_on)
+                    TextButton(
+                        onClick = viewModel::toggleTypeAnswer,
+                        modifier = Modifier.semantics { contentDescription = typeLabel },
+                    ) { Text(if (state.typeAnswer) "✍✓" else "✍") }
                     if (state.canUndo) TextButton(onClick = viewModel::undo) { Text(stringResource(R.string.undo)) }
                 },
             )
@@ -68,7 +80,7 @@ fun ReviewScreen(viewModel: ReviewViewModel, onClose: () -> Unit) {
             when {
                 state.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 state.finished -> Summary(state, kids, onClose)
-                else -> Question(state, kids, onReveal = viewModel::reveal, onAnswer = viewModel::answer)
+                else -> Question(state, kids, onReveal = viewModel::reveal, onAnswer = viewModel::answer, onCheck = viewModel::check)
             }
         }
     }
@@ -80,8 +92,11 @@ private fun Question(
     kids: Boolean,
     onReveal: () -> Unit,
     onAnswer: (Boolean) -> Unit,
+    onCheck: (String) -> Unit,
 ) {
     val card = state.card ?: return
+    // Escribir la respuesta solo tiene sentido si la respuesta tiene texto.
+    val typing = state.typeAnswer && card.back.isNotBlank()
     val player = rememberAudioPlayer()
     val speaker = rememberSpeaker()
     // En modo niños la pregunta suena sola: el audio grabado o, si no hay, la voz del móvil.
@@ -194,6 +209,13 @@ private fun Question(
             }
         }
 
+        state.typedCorrect?.let { correct ->
+            Text(
+                if (correct) stringResource(R.string.typed_right) else stringResource(R.string.typed_wrong, state.typedText),
+                style = MaterialTheme.typography.titleMedium,
+                color = if (correct) Color(0xFF43A047) else MaterialTheme.colorScheme.error,
+            )
+        }
         if (state.revealed) {
             val height = if (kids) 88.dp else 56.dp
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -208,6 +230,22 @@ private fun Question(
                     modifier = Modifier.weight(1f).height(height),
                 ) { Text(modeString(kids, R.string.right_kids, R.string.right)) }
             }
+        } else if (typing) {
+            var typed by rememberSaveable(card.id, state.position) { mutableStateOf("") }
+            OutlinedTextField(
+                value = typed,
+                onValueChange = { typed = it },
+                label = { Text(stringResource(R.string.your_answer)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { if (typed.isNotBlank()) onCheck(typed) }),
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Button(
+                onClick = { onCheck(typed) },
+                enabled = typed.isNotBlank(),
+                modifier = Modifier.fillMaxWidth().height(if (kids) 88.dp else 56.dp),
+            ) { Text(stringResource(R.string.check)) }
         } else {
             Button(onClick = onReveal, modifier = Modifier.fillMaxWidth().height(if (kids) 88.dp else 56.dp)) {
                 Text(stringResource(R.string.show_answer))

@@ -189,7 +189,7 @@ class MainActivity : ComponentActivity() {
                     ) { entry ->
                         val mode = Mode.valueOf(entry.arguments?.getString("mode") ?: Mode.NORMAL.name)
                         val deckId = entry.arguments?.getLong("deckId") ?: 0L
-                        val vm: ReviewViewModel = viewModel(factory = ReviewViewModel.Factory(repository, mode, deckId))
+                        val vm: ReviewViewModel = viewModel(factory = ReviewViewModel.Factory(repository, mode, deckId, prefs))
                         LeitnerTheme(mode) {
                             ReviewScreen(viewModel = vm, onClose = { nav.popBackStack() })
                         }
