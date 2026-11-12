@@ -84,7 +84,16 @@ fun BackupSection(backup: BackupManager) {
                         context.contentResolver.openInputStream(uri)!!.use { backup.import(it) }
                     }.fold(
                         onSuccess = { context.getString(R.string.backup_imported, it.decks, it.cards) },
-                        onFailure = { (it as? BackupManager.InvalidBackupException)?.message ?: context.getString(R.string.backup_import_failed) },
+                        onFailure = { e ->
+                            context.getString(
+                                when ((e as? BackupManager.InvalidBackupException)?.reason) {
+                                    BackupManager.Reason.NOT_A_BACKUP -> R.string.backup_not_a_backup
+                                    BackupManager.Reason.DAMAGED -> R.string.backup_damaged
+                                    BackupManager.Reason.UNSUPPORTED_VERSION -> R.string.backup_unsupported
+                                    null -> R.string.backup_import_failed
+                                },
+                            )
+                        },
                     )
                     busy = false
                 }

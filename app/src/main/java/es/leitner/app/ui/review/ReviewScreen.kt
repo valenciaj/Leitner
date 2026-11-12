@@ -41,9 +41,10 @@ import es.leitner.app.R
 import es.leitner.app.media.rememberAudioPlayer
 import es.leitner.app.media.rememberSpeaker
 import es.leitner.app.ui.common.CardImage
+import es.leitner.app.ui.common.centeredMaxWidth
 import es.leitner.app.ui.common.modeString
 import es.leitner.app.ui.common.pluralResource
-import es.leitner.app.ui.common.centeredMaxWidth
+import es.leitner.app.ui.common.titleRes
 import es.leitner.core.Mode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -257,7 +258,7 @@ private fun Summary(state: ReviewUiState, kids: Boolean, onClose: () -> Unit) {
                     Text(a.emoji, fontSize = if (kids) 48.sp else 32.sp)
                     Column(Modifier.padding(start = 12.dp)) {
                         Text(modeString(kids, R.string.new_sticker, R.string.new_achievement), style = MaterialTheme.typography.bodyMedium)
-                        Text(a.title, style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(a.titleRes), style = MaterialTheme.typography.titleMedium)
                     }
                 }
             }

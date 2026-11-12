@@ -25,7 +25,10 @@ class BackupManager(
 ) {
     data class Summary(val decks: Int, val cards: Int)
 
-    class InvalidBackupException(message: String) : Exception(message)
+    /** Por qué no se puede importar una copia. */
+    enum class Reason { NOT_A_BACKUP, DAMAGED, UNSUPPORTED_VERSION }
+
+    class InvalidBackupException(val reason: Reason) : Exception(reason.name)
 
     private val dao = db.backupDao()
 
@@ -64,14 +67,14 @@ class BackupManager(
             try {
                 readZip(input, staging) { jsonText = it }
             } catch (e: java.util.zip.ZipException) {
-                throw InvalidBackupException("El fichero no es una copia de Leitner")
+                throw InvalidBackupException(Reason.NOT_A_BACKUP)
             }
             val json = try {
-                JSONObject(jsonText ?: throw InvalidBackupException("El fichero no es una copia de Leitner"))
+                JSONObject(jsonText ?: throw InvalidBackupException(Reason.NOT_A_BACKUP))
             } catch (e: org.json.JSONException) {
-                throw InvalidBackupException("La copia está dañada")
+                throw InvalidBackupException(Reason.DAMAGED)
             }
-            if (json.optInt("format") != FORMAT) throw InvalidBackupException("Versión de copia no compatible")
+            if (json.optInt("format") != FORMAT) throw InvalidBackupException(Reason.UNSUPPORTED_VERSION)
 
             val decks = json.getJSONArray("decks").objects().map { it.toDeck() }
             val cards = json.getJSONArray("cards").objects().map { it.toCard(media.directory) }

@@ -198,6 +198,36 @@
     <string name="backup_imported">Copia importada: %1$d mazos, %2$d tarjetas ✓</string>
     <string name="backup_import_failed">No se pudo importar la copia</string>
 
+    <string name="err_box_count">El número de cajas debe estar entre %1$d y %2$d</string>
+    <string name="err_interval_range">Cada intervalo debe estar entre 1 y %1$d días</string>
+    <string name="backup_not_a_backup">El fichero no es una copia de Leitner</string>
+    <string name="backup_damaged">La copia está dañada</string>
+    <string name="backup_unsupported">Versión de copia no compatible</string>
+
+    <!-- Pegatinas -->
+    <string name="ach_first_correct">Primer acierto</string>
+    <string name="ach_first_correct_hint">Acierta una tarjeta</string>
+    <string name="ach_correct_10">10 aciertos</string>
+    <string name="ach_correct_10_hint">Acierta 10 tarjetas</string>
+    <string name="ach_correct_50">50 aciertos</string>
+    <string name="ach_correct_50_hint">Acierta 50 tarjetas</string>
+    <string name="ach_correct_100">100 aciertos</string>
+    <string name="ach_correct_100_hint">Acierta 100 tarjetas</string>
+    <string name="ach_correct_500">500 aciertos</string>
+    <string name="ach_correct_500_hint">Acierta 500 tarjetas</string>
+    <string name="ach_correct_1000">1000 aciertos</string>
+    <string name="ach_correct_1000_hint">Acierta 1000 tarjetas</string>
+    <string name="ach_streak_3">Racha de 3 días</string>
+    <string name="ach_streak_3_hint">Repasa 3 días seguidos</string>
+    <string name="ach_streak_7">Racha de 7 días</string>
+    <string name="ach_streak_7_hint">Repasa 7 días seguidos</string>
+    <string name="ach_streak_30">Racha de 30 días</string>
+    <string name="ach_streak_30_hint">Repasa 30 días seguidos</string>
+    <string name="ach_days_10">10 días estudiando</string>
+    <string name="ach_days_10_hint">Repasa 10 días distintos</string>
+    <string name="ach_days_50">50 días estudiando</string>
+    <string name="ach_days_50_hint">Repasa 50 días distintos</string>
+
     <!-- Notificación -->
     <string name="notif_channel">Recordatorio diario</string>
     <string name="notif_title">¡Hora de repasar!</string>
