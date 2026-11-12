@@ -34,6 +34,7 @@ import es.leitner.app.R
 import es.leitner.app.data.AppPrefs
 import es.leitner.app.data.BackupManager
 import es.leitner.app.ui.ModeNames
+import es.leitner.app.ui.common.centeredMaxWidth
 import es.leitner.core.Mode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,7 +63,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, backup: Backup
             }
 
             Column(
-                Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+                Modifier.fillMaxSize().verticalScroll(rememberScrollState()).centeredMaxWidth().padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(

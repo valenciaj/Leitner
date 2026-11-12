@@ -22,13 +22,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import es.leitner.app.R
 import es.leitner.app.ui.ModeNames
+import es.leitner.app.ui.common.centeredMaxWidth
 import es.leitner.core.Mode
 
 @Composable
 fun ModeSelectScreen(onModeSelected: (Mode) -> Unit, onOpenSettings: () -> Unit) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(24.dp),
+            modifier = Modifier.fillMaxSize().padding(24.dp).centeredMaxWidth(560.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {

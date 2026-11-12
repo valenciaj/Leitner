@@ -5,6 +5,22 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import es.leitner.app.ui.common.isWideScreen
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -87,13 +103,58 @@ class MainActivity : ComponentActivity() {
                                 onSuccess = { askPin = false; leave() },
                             )
                         }
-                        HomeScreen(
-                            viewModel = vm,
-                            onChangeMode = { if (locked) askPin = true else leave() },
-                            onOpenDeck = { deckId -> nav.navigate("deck/${mode.name}/$deckId") },
-                            onReview = { deckId -> nav.navigate("review/${mode.name}/$deckId") },
-                            onOpenStats = { nav.navigate("stats/${mode.name}") },
-                        )
+                        // En tablet, los mazos a la izquierda y el mazo abierto a la derecha.
+                        val wide = isWideScreen()
+                        var selectedDeck by rememberSaveable { mutableStateOf<Long?>(null) }
+                        // Atrás cierra primero el mazo abierto a la derecha.
+                        BackHandler(enabled = wide && selectedDeck != null) { selectedDeck = null }
+                        val home: @Composable (Modifier) -> Unit = { modifier ->
+                            Box(modifier) {
+                                HomeScreen(
+                                    viewModel = vm,
+                                    onChangeMode = { if (locked) askPin = true else leave() },
+                                    onOpenDeck = { deckId ->
+                                        if (wide) selectedDeck = deckId else nav.navigate("deck/${mode.name}/$deckId")
+                                    },
+                                    onReview = { deckId -> nav.navigate("review/${mode.name}/$deckId") },
+                                    onOpenStats = { nav.navigate("stats/${mode.name}") },
+                                    selectedDeckId = if (wide) selectedDeck else null,
+                                )
+                            }
+                        }
+                        if (!wide) {
+                            home(Modifier.fillMaxSize())
+                        } else {
+                            Row(Modifier.fillMaxSize()) {
+                                home(Modifier.weight(0.4f).fillMaxHeight())
+                                VerticalDivider()
+                                Box(Modifier.weight(0.6f).fillMaxHeight()) {
+                                    val deckId = selectedDeck
+                                    if (deckId == null) {
+                                        Surface(Modifier.fillMaxSize()) {
+                                            Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+                                                Text(
+                                                    stringResource(R.string.pick_deck),
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    textAlign = TextAlign.Center,
+                                                )
+                                            }
+                                        }
+                                    } else {
+                                        val deckVm: DeckViewModel = viewModel(
+                                            key = "deck-$deckId",
+                                            factory = DeckViewModel.Factory(repository, mode, deckId, resources),
+                                        )
+                                        DeckScreen(
+                                            viewModel = deckVm,
+                                            media = app.media,
+                                            pinCheck = if (hasPin) prefs::checkPin else null,
+                                            onBack = { selectedDeck = null },
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 composable(

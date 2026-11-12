@@ -27,6 +27,7 @@
     <string name="new_deck_kids">➕ Nuevo mazo</string>
     <string name="create">Crear</string>
     <string name="no_decks">Aún no hay mazos</string>
+    <string name="pick_deck">Elige un mazo para ver sus tarjetas</string>
     <string name="no_decks_kids">¡Crea tu primer mazo! 🎉</string>
     <string name="review_all">Repasar todo (%1$d)</string>
     <string name="review_all_kids">▶ Jugar con todo (%1$d)</string>

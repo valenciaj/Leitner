@@ -37,6 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.leitner.app.R
 import es.leitner.app.ui.common.modeString
 import es.leitner.app.ui.common.pluralResource
+import es.leitner.app.ui.common.centeredMaxWidth
 import es.leitner.core.Achievement
 import es.leitner.core.Mode
 import java.time.LocalDate
@@ -58,7 +59,7 @@ fun StatsScreen(viewModel: StatsViewModel, onBack: () -> Unit) {
         },
     ) { padding ->
         Column(
-            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
+            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).centeredMaxWidth().padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
