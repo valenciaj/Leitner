@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import es.leitner.app.data.DayActivity
+import es.leitner.app.data.HardCard
 import es.leitner.app.data.LeitnerRepository
 import es.leitner.core.Achievement
 import es.leitner.core.Mode
@@ -26,6 +27,8 @@ data class StatsUiState(
     val achievements: Set<Achievement> = emptySet(),
     /** Últimos 30 días, del más antiguo a hoy. */
     val lastMonth: List<DayActivity> = emptyList(),
+    /** Las tarjetas que más se fallan. */
+    val hardCards: List<HardCard> = emptyList(),
 )
 
 class StatsViewModel(repository: LeitnerRepository, val mode: Mode) : ViewModel() {
@@ -56,6 +59,8 @@ class StatsViewModel(repository: LeitnerRepository, val mode: Mode) : ViewModel(
     }.combine(repository.observeActivity(mode, days = 30)) { state, activity ->
         val byDay = activity.associateBy { it.day }
         state.copy(lastMonth = (today - 29..today).map { day -> byDay[day] ?: DayActivity(day, 0, 0) })
+    }.combine(repository.observeHardCards(mode)) { state, hard ->
+        state.copy(hardCards = hard)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), StatsUiState())
 
     class Factory(private val repository: LeitnerRepository, private val mode: Mode) : ViewModelProvider.Factory {

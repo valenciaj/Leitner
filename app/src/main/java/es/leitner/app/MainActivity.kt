@@ -189,18 +189,20 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     composable(
-                        "practice/{mode}/{deckId}?tag={tag}",
+                        "practice/{mode}/{deckId}?tag={tag}&hard={hard}",
                         arguments = listOf(
                             navArgument("mode") { type = NavType.StringType },
                             navArgument("deckId") { type = NavType.LongType },
                             navArgument("tag") { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("hard") { type = NavType.BoolType; defaultValue = false },
                         ),
                     ) { entry ->
                         val mode = Mode.valueOf(entry.arguments?.getString("mode") ?: Mode.NORMAL.name)
                         val deckId = entry.arguments?.getLong("deckId") ?: 0L
                         val tag = entry.arguments?.getString("tag")
+                        val hard = entry.arguments?.getBoolean("hard") ?: false
                         val vm: ReviewViewModel = viewModel(
-                            factory = ReviewViewModel.Factory(repository, mode, deckId, prefs, practice = true, practiceTag = tag),
+                            factory = ReviewViewModel.Factory(repository, mode, deckId, prefs, practice = true, practiceTag = tag, practiceHard = hard),
                         )
                         LeitnerTheme(mode) {
                             ReviewScreen(viewModel = vm, onClose = { nav.popBackStack() })
@@ -227,7 +229,11 @@ class MainActivity : ComponentActivity() {
                         val mode = Mode.valueOf(entry.arguments?.getString("mode") ?: Mode.NORMAL.name)
                         val vm: StatsViewModel = viewModel(key = "stats-${mode.name}", factory = StatsViewModel.Factory(repository, mode))
                         LeitnerTheme(mode) {
-                            StatsScreen(viewModel = vm, onBack = { nav.popBackStack() })
+                            StatsScreen(
+                                viewModel = vm,
+                                onBack = { nav.popBackStack() },
+                                onPracticeHard = { nav.navigate("practice/${mode.name}/0?hard=true") },
+                            )
                         }
                     }
                     composable("settings") {

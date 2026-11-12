@@ -10,6 +10,7 @@ import es.leitner.core.Mode
 import es.leitner.core.Tags
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
@@ -195,6 +196,14 @@ class LeitnerRepository(
 
     fun observeReviewDays(mode: Mode): Flow<List<Long>> = stats.observeReviewDays(mode)
 
+    /** Las tarjetas difíciles de un modo, para practicarlas. */
+    suspend fun hardCards(mode: Mode): List<CardEntity> =
+        stats.observeHardCards(mode, minFails = HARD_MIN_FAILS, limit = HARD_LIMIT).first().map { it.card }
+
+    /** Las tarjetas que más se fallan en un modo. */
+    fun observeHardCards(mode: Mode): Flow<List<HardCard>> =
+        stats.observeHardCards(mode, minFails = HARD_MIN_FAILS, limit = HARD_LIMIT)
+
     // ---- Pegatinas ----
 
     fun observeAchievements(mode: Mode): Flow<Set<Achievement>> =
@@ -208,6 +217,12 @@ class LeitnerRepository(
     companion object {
         /** deckId especial para repasar todos los mazos de un modo. */
         const val ALL_DECKS = 0L
+
+        /** Fallos mínimos para que una tarjeta cuente como difícil. */
+        const val HARD_MIN_FAILS = 2
+
+        /** Máximo de tarjetas difíciles que se muestran y practican. */
+        const val HARD_LIMIT = 15
     }
 }
 

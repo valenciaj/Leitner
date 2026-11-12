@@ -51,6 +51,8 @@ class ReviewViewModel(
     val practice: Boolean = false,
     /** En la práctica, solo las tarjetas con esta etiqueta. */
     private val practiceTag: String? = null,
+    /** Práctica de las tarjetas difíciles del modo (de todos los mazos). */
+    private val practiceHard: Boolean = false,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ReviewUiState())
@@ -67,7 +69,9 @@ class ReviewViewModel(
     init {
         viewModelScope.launch {
             if (!practice) achievementsBefore = repository.achievements(mode)
-            val due = if (practice) {
+            val due = if (practice && practiceHard) {
+                repository.hardCards(mode).shuffled()
+            } else if (practice) {
                 repository.deckCards(deckId)
                     .filter { practiceTag == null || Tags.has(it.tags, practiceTag) }
                     .shuffled()
@@ -158,9 +162,10 @@ class ReviewViewModel(
         private val prefs: AppPrefs,
         private val practice: Boolean = false,
         private val practiceTag: String? = null,
+        private val practiceHard: Boolean = false,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            ReviewViewModel(repository, mode, deckId, prefs, practice, practiceTag) as T
+            ReviewViewModel(repository, mode, deckId, prefs, practice, practiceTag, practiceHard) as T
     }
 }
