@@ -58,6 +58,7 @@ La CI de GitHub genera el APK de depuración en cada push.
 ## Motivación
 
 - **Estadísticas**: racha, tarjetas por caja, últimos 7 días y gráfico de los últimos 30 días con el % de aciertos.
+- **Objetivo diario**: en Ajustes eliges cuántas tarjetas repasar al día en cada modo (por defecto 20, y 10 en Peques). La lista de mazos muestra una barra con lo que llevas hoy.
 - **Pegatinas** (logros) por aciertos, rachas y días de estudio. Se ven en 🏆 / Estadísticas y se anuncian al terminar un repaso.
 - **Widget** para la pantalla de inicio con las tarjetas pendientes de hoy. Al tocarlo abre la app.
 

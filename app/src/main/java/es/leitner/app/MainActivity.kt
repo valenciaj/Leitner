@@ -75,6 +75,7 @@ class MainActivity : ComponentActivity() {
                 if (startInKids) nav.navigate("home/${Mode.KIDS.name}")
             }
             val theme by prefs.theme.collectAsState()
+            val dailyGoals by prefs.dailyGoals.collectAsState()
             CompositionLocalProvider(LocalThemeChoice provides theme) {
                 NavHost(navController = nav, startDestination = "mode") {
                     composable("mode") {
@@ -117,6 +118,7 @@ class MainActivity : ComponentActivity() {
                                     HomeScreen(
                                         viewModel = vm,
                                         deckShare = app.deckShare,
+                                        dailyGoal = dailyGoals[mode] ?: 0,
                                         onChangeMode = { if (locked) askPin = true else leave() },
                                         onOpenDeck = { deckId ->
                                             if (wide) selectedDeck = deckId else nav.navigate("deck/${mode.name}/$deckId")

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/** Preferencias sencillas: PIN del modo niños y último modo usado. */
+/** Preferencias sencillas: PIN del modo niños, objetivo diario, tema, recordatorio y último modo usado. */
 class AppPrefs(context: Context) {
 
     private val prefs = context.getSharedPreferences("leitner_prefs", Context.MODE_PRIVATE)
@@ -39,6 +39,19 @@ class AppPrefs(context: Context) {
 
     fun setTypeAnswer(mode: Mode, on: Boolean) = prefs.edit().putBoolean(KEY_TYPE_ANSWER + mode.name, on).apply()
 
+    // ---- Objetivo diario (por modo; 0 = sin objetivo) ----
+
+    private val _dailyGoals = MutableStateFlow(
+        Mode.entries.associateWith { prefs.getInt(KEY_DAILY_GOAL + it.name, defaultGoal(it)) },
+    )
+    val dailyGoals: StateFlow<Map<Mode, Int>> = _dailyGoals.asStateFlow()
+
+    fun setDailyGoal(mode: Mode, goal: Int) {
+        val value = goal.coerceIn(0, MAX_DAILY_GOAL)
+        prefs.edit().putInt(KEY_DAILY_GOAL + mode.name, value).apply()
+        _dailyGoals.value = _dailyGoals.value + (mode to value)
+    }
+
     // ---- Recordatorio diario ----
 
     var reminderEnabled: Boolean
@@ -69,14 +82,20 @@ class AppPrefs(context: Context) {
         get() = prefs.getString(KEY_LAST_MODE, null)?.let { runCatching { Mode.valueOf(it) }.getOrNull() }
         set(value) = prefs.edit().putString(KEY_LAST_MODE, value?.name).apply()
 
-    private companion object {
-        const val KEY_PIN_SALT = "pin_salt"
-        const val KEY_PIN_HASH = "pin_hash"
-        const val KEY_LAST_MODE = "last_mode"
-        const val KEY_THEME = "theme"
-        const val KEY_TYPE_ANSWER = "type_answer_"
-        const val KEY_REMINDER_ON = "reminder_on"
-        const val KEY_REMINDER_HOUR = "reminder_hour"
-        const val KEY_REMINDER_MINUTE = "reminder_minute"
+    companion object {
+        const val MAX_DAILY_GOAL = 200
+        const val DAILY_GOAL_STEP = 5
+
+        fun defaultGoal(mode: Mode): Int = if (mode == Mode.KIDS) 10 else 20
+
+        private const val KEY_DAILY_GOAL = "daily_goal_"
+        private const val KEY_PIN_SALT = "pin_salt"
+        private const val KEY_PIN_HASH = "pin_hash"
+        private const val KEY_LAST_MODE = "last_mode"
+        private const val KEY_THEME = "theme"
+        private const val KEY_TYPE_ANSWER = "type_answer_"
+        private const val KEY_REMINDER_ON = "reminder_on"
+        private const val KEY_REMINDER_HOUR = "reminder_hour"
+        private const val KEY_REMINDER_MINUTE = "reminder_minute"
     }
 }

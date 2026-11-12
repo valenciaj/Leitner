@@ -20,6 +20,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -55,6 +56,8 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     viewModel: HomeViewModel,
     deckShare: DeckShare,
+    /** Tarjetas que repasar al día; 0 si no hay objetivo. */
+    dailyGoal: Int,
     onChangeMode: () -> Unit,
     onOpenDeck: (Long) -> Unit,
     onReview: (Long) -> Unit,
@@ -63,6 +66,7 @@ fun HomeScreen(
     selectedDeckId: Long? = null,
 ) {
     val decks by viewModel.decks.collectAsStateWithLifecycle()
+    val reviewedToday by viewModel.reviewedToday.collectAsStateWithLifecycle()
     var showDialog by remember { mutableStateOf(false) }
     val kids = viewModel.mode == Mode.KIDS
     var menuOpen by remember { mutableStateOf(false) }
@@ -132,6 +136,9 @@ fun HomeScreen(
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                if (dailyGoal > 0) {
+                    item(key = "goal") { GoalCard(reviewedToday, dailyGoal) }
+                }
                 val totalDue = decks.sumOf { it.dueCards }
                 // Con varios mazos pendientes, un botón para repasarlos todos de una vez.
                 if (decks.count { it.dueCards > 0 } > 1) {
@@ -181,6 +188,29 @@ private fun DeckRow(deck: DeckSummary, kids: Boolean, selected: Boolean, onClick
             if (deck.dueCards > 0) {
                 Button(onClick = onReview) { Text(modeString(kids, R.string.review_kids, R.string.review)) }
             }
+        }
+    }
+}
+
+/** Objetivo diario: barra de progreso con las tarjetas repasadas hoy. */
+@Composable
+private fun GoalCard(done: Int, goal: Int) {
+    val reached = done >= goal
+    Card(
+        Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (reached) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+        ),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                if (reached) stringResource(R.string.goal_reached, done) else stringResource(R.string.goal_progress, done, goal),
+                style = MaterialTheme.typography.titleSmall,
+            )
+            LinearProgressIndicator(
+                progress = { (done.toFloat() / goal).coerceAtMost(1f) },
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }
