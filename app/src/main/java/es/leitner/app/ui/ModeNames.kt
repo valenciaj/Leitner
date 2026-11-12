@@ -1,14 +1,14 @@
 package es.leitner.app.ui
 
+import androidx.annotation.StringRes
+import es.leitner.app.R
 import es.leitner.core.Mode
 
-/** Nombres visibles de los modos. Cambiar aquí para renombrarlos en toda la app. */
+/** Nombres visibles de los modos (en strings.xml: mode_kids y mode_normal). */
 object ModeNames {
-    const val KIDS = "Peques"
-    const val NORMAL = "Clásico"
-
-    fun of(mode: Mode): String = when (mode) {
-        Mode.KIDS -> KIDS
-        Mode.NORMAL -> NORMAL
+    @StringRes
+    fun of(mode: Mode): Int = when (mode) {
+        Mode.KIDS -> R.string.mode_kids
+        Mode.NORMAL -> R.string.mode_normal
     }
 }

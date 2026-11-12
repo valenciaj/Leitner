@@ -40,14 +40,14 @@ fun ModeSelectScreen(onModeSelected: (Mode) -> Unit, onOpenSettings: () -> Unit)
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF7043)),
                 modifier = Modifier.fillMaxWidth().height(120.dp),
             ) {
-                Text("🧒  ${ModeNames.KIDS}", fontSize = 28.sp)
+                Text("🧒  " + stringResource(ModeNames.of(Mode.KIDS)), fontSize = 28.sp)
             }
 
             OutlinedButton(
                 onClick = { onModeSelected(Mode.NORMAL) },
                 modifier = Modifier.fillMaxWidth().height(72.dp),
             ) {
-                Text(ModeNames.NORMAL, fontSize = 20.sp)
+                Text(stringResource(ModeNames.of(Mode.NORMAL)), fontSize = 20.sp)
             }
 
             TextButton(onClick = onOpenSettings) { Text(stringResource(R.string.box_settings)) }

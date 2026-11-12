@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Leitner</string>
 
+    <!-- Modos -->
+    <string name="mode_kids">Peques</string>
+    <string name="mode_normal">Clásico</string>
+
     <!-- Común -->
     <string name="back">‹ Atrás</string>
     <string name="cancel">Cancelar</string>

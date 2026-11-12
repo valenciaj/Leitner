@@ -58,7 +58,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, backup: Backup
                     Tab(
                         selected = state.mode == mode,
                         onClick = { viewModel.selectMode(mode) },
-                        text = { Text(ModeNames.of(mode)) },
+                        text = { Text(stringResource(ModeNames.of(mode))) },
                     )
                 }
             }
