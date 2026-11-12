@@ -39,6 +39,7 @@ fun HomeScreen(
     onChangeMode: () -> Unit,
     onOpenDeck: (Long) -> Unit,
     onReview: (Long) -> Unit,
+    onOpenStats: () -> Unit,
 ) {
     val decks by viewModel.decks.collectAsStateWithLifecycle()
     var showDialog by remember { mutableStateOf(false) }
@@ -48,7 +49,10 @@ fun HomeScreen(
         topBar = {
             TopAppBar(
                 title = { Text(if (kids) "Mis tarjetas" else "Mazos") },
-                actions = { TextButton(onClick = onChangeMode) { Text("Cambiar modo") } },
+                actions = {
+                    TextButton(onClick = onOpenStats) { Text(if (kids) "🏆" else "Estadísticas") }
+                    TextButton(onClick = onChangeMode) { Text("Cambiar modo") }
+                },
             )
         },
         floatingActionButton = {

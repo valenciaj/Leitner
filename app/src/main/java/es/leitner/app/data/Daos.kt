@@ -101,3 +101,49 @@ interface BoxSettingsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(settings: BoxSettingsEntity)
 }
+
+data class BoxCount(val box: Int, val count: Int)
+
+data class DayActivity(val day: Long, val correct: Int, val total: Int)
+
+@Dao
+interface StatsDao {
+    @Insert
+    suspend fun log(entry: ReviewLogEntity)
+
+    @Query(
+        """
+        SELECT c.box AS box, COUNT(*) AS count
+        FROM cards c JOIN decks d ON c.deckId = d.id
+        WHERE d.mode = :mode
+        GROUP BY c.box ORDER BY c.box
+        """,
+    )
+    fun observeBoxCounts(mode: Mode): Flow<List<BoxCount>>
+
+    @Query(
+        """
+        SELECT COUNT(*) FROM cards c JOIN decks d ON c.deckId = d.id
+        WHERE d.mode = :mode AND c.nextReviewDay <= :today
+        """,
+    )
+    fun observeDueCount(mode: Mode, today: Long): Flow<Int>
+
+    @Query(
+        """
+        SELECT r.day AS day, SUM(r.correct) AS correct, COUNT(*) AS total
+        FROM review_log r JOIN decks d ON r.deckId = d.id
+        WHERE d.mode = :mode AND r.day >= :fromDay
+        GROUP BY r.day ORDER BY r.day
+        """,
+    )
+    fun observeActivity(mode: Mode, fromDay: Long): Flow<List<DayActivity>>
+
+    @Query(
+        """
+        SELECT DISTINCT r.day FROM review_log r JOIN decks d ON r.deckId = d.id
+        WHERE d.mode = :mode ORDER BY r.day DESC
+        """,
+    )
+    fun observeReviewDays(mode: Mode): Flow<List<Long>>
+}

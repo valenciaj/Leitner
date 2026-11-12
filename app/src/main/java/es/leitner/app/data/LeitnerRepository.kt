@@ -12,11 +12,12 @@ import java.time.LocalDate
 /** Punto único de acceso a los datos. La UI no habla con Room directamente. */
 class LeitnerRepository(
     private val db: LeitnerDatabase,
-    private val today: () -> Long = { LocalDate.now().toEpochDay() },
+    private val clock: () -> Long = { LocalDate.now().toEpochDay() },
 ) {
     private val decks = db.deckDao()
     private val cards = db.cardDao()
     private val settings = db.boxSettingsDao()
+    private val stats = db.statsDao()
 
     // ---- Configuración de cajas ----
 
@@ -81,6 +82,24 @@ class LeitnerRepository(
             today = today(),
             config = config(mode),
         )
-        cards.update(card.copy(box = result.box, nextReviewDay = result.nextReviewDay))
+        db.withTransaction {
+            cards.update(card.copy(box = result.box, nextReviewDay = result.nextReviewDay))
+            stats.log(ReviewLogEntity(cardId = card.id, deckId = card.deckId, day = today(), correct = correct))
+        }
     }
+
+    // ---- Estadísticas ----
+
+    /** Hoy, como epochDay. */
+    fun today(): Long = clock()
+
+    fun observeBoxCounts(mode: Mode): Flow<List<BoxCount>> = stats.observeBoxCounts(mode)
+
+    fun observeDueCount(mode: Mode): Flow<Int> = stats.observeDueCount(mode, today())
+
+    /** Actividad de los últimos [days] días (incluido hoy). */
+    fun observeActivity(mode: Mode, days: Int): Flow<List<DayActivity>> =
+        stats.observeActivity(mode, today() - (days - 1))
+
+    fun observeReviewDays(mode: Mode): Flow<List<Long>> = stats.observeReviewDays(mode)
 }

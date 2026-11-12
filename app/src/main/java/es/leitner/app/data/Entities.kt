@@ -46,3 +46,25 @@ data class BoxSettingsEntity(
     @PrimaryKey val mode: Mode,
     val intervals: String,
 )
+
+/** Un registro por cada respuesta en un repaso. Se usa para las estadísticas. */
+@Entity(
+    tableName = "review_log",
+    foreignKeys = [
+        ForeignKey(
+            entity = CardEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["cardId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index("cardId"), Index("day")],
+)
+data class ReviewLogEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val cardId: Long,
+    val deckId: Long,
+    /** Día del repaso (epochDay). */
+    val day: Long,
+    val correct: Boolean,
+)
