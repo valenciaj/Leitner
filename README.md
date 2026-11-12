@@ -34,4 +34,4 @@ La CI de GitHub genera el APK de depuración en cada push.
 2. ✅ Crear y editar mazos y tarjetas
 3. ✅ Pantalla de repaso diario y ajustes de cajas
 4. ✅ Estadísticas sencillas
-5. Extras: ✅ imágenes y audio · PIN modo niños · recordatorio diario · importar CSV
+5. Extras: ✅ imágenes y audio · ✅ PIN modo niños · recordatorio diario · importar CSV

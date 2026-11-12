@@ -1,6 +1,7 @@
 package es.leitner.app
 
 import android.app.Application
+import es.leitner.app.data.AppPrefs
 import es.leitner.app.data.LeitnerDatabase
 import es.leitner.app.data.LeitnerRepository
 import es.leitner.app.data.MediaStorage
@@ -11,4 +12,5 @@ class LeitnerApp : Application() {
     val repository: LeitnerRepository by lazy {
         LeitnerRepository(LeitnerDatabase.create(this), media)
     }
+    val prefs: AppPrefs by lazy { AppPrefs(this) }
 }
