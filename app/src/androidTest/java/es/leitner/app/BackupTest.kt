@@ -37,7 +37,7 @@ class BackupTest {
             val audio = File(media.directory, "test-audio.m4a").apply { writeBytes(byteArrayOf(4, 5)) }
             db.backupDao().insertDecks(listOf(DeckEntity(id = 7, name = "Animales", mode = Mode.KIDS, createdAt = 1)))
             db.backupDao().insertCards(
-                listOf(CardEntity(id = 3, deckId = 7, front = "", back = "perro", imageUri = image.absolutePath, backAudioPath = audio.absolutePath, box = 2, nextReviewDay = 50)),
+                listOf(CardEntity(id = 3, deckId = 7, front = "", back = "perro", imageUri = image.absolutePath, backAudioPath = audio.absolutePath, box = 2, nextReviewDay = 50, tags = "animales")),
             )
             db.backupDao().insertSettings(listOf(BoxSettingsEntity(Mode.KIDS, "1,2")))
             db.backupDao().insertLogs(listOf(ReviewLogEntity(cardId = 3, deckId = 7, day = 49, correct = true)))
@@ -55,6 +55,7 @@ class BackupTest {
             val card = db.backupDao().cards().single()
             assertEquals("perro", card.back)
             assertEquals(2, card.box)
+            assertEquals("animales", card.tags)
             assertTrue(File(card.imageUri!!).readBytes().contentEquals(byteArrayOf(1, 2, 3)))
             assertTrue(File(card.backAudioPath!!).readBytes().contentEquals(byteArrayOf(4, 5)))
             assertEquals("Animales", db.backupDao().decks().single().name)

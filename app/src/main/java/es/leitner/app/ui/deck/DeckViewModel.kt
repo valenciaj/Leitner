@@ -13,11 +13,13 @@ import es.leitner.core.CsvExport
 import es.leitner.core.CsvImport
 import es.leitner.core.LeitnerConfig
 import es.leitner.core.Mode
+import es.leitner.core.Tags
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -43,10 +45,28 @@ class DeckViewModel(
         _query.value = text
     }
 
-    /** Tarjetas que coinciden con la búsqueda (pregunta o respuesta, sin mayúsculas ni tildes). */
-    val visibleCards: StateFlow<List<CardEntity>> = combine(cards, _query) { list, q ->
+    /** Todas las etiquetas del mazo. */
+    val tags: StateFlow<List<String>> = cards.map { list -> Tags.all(list.map { it.tags }) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    private val _selectedTag = MutableStateFlow<String?>(null)
+    /** Etiqueta elegida para filtrar, o null para ver todas. */
+    val selectedTag: StateFlow<String?> = _selectedTag.asStateFlow()
+
+    fun selectTag(tag: String?) {
+        _selectedTag.value = if (tag == _selectedTag.value) null else tag
+    }
+
+    /**
+     * Tarjetas que coinciden con la etiqueta elegida y con la búsqueda
+     * (pregunta, respuesta o etiquetas, sin mayúsculas ni tildes).
+     */
+    val visibleCards: StateFlow<List<CardEntity>> = combine(cards, _query, _selectedTag) { list, q, tag ->
         val needle = normalize(q.trim())
-        if (needle.isEmpty()) list else list.filter { normalize(it.front).contains(needle) || normalize(it.back).contains(needle) }
+        list.filter { card ->
+            (tag == null || Tags.has(card.tags, tag)) &&
+                (needle.isEmpty() || listOf(card.front, card.back, card.tags).any { normalize(it).contains(needle) })
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     val config: StateFlow<LeitnerConfig> = repository.observeConfig(mode)

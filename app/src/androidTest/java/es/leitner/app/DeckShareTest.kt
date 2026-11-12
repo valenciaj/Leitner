@@ -38,7 +38,7 @@ class DeckShareTest {
             val deckId = db.deckDao().insert(DeckEntity(name = "Animales", mode = Mode.NORMAL))
             db.cardDao().insertAll(
                 listOf(
-                    CardEntity(deckId = deckId, front = "dog", back = "perro", box = 4, nextReviewDay = 50),
+                    CardEntity(deckId = deckId, front = "dog", back = "perro", box = 4, nextReviewDay = 50, tags = "verbos, tema 3"),
                     CardEntity(deckId = deckId, front = "", back = "gato", imageUri = image.absolutePath, box = 2, nextReviewDay = 60),
                 ),
             )
@@ -58,6 +58,7 @@ class DeckShareTest {
             assertNotEquals(image.absolutePath, importedImage)
             assertTrue(File(importedImage!!).readBytes().contentEquals(byteArrayOf(1, 2, 3)))
             assertNull(cards[1].imageUri)
+            assertEquals("verbos, tema 3", cards[1].tags)
             // El mazo original sigue igual.
             assertEquals(2, db.cardDao().cardsOfDeck(deckId).size)
         } finally {

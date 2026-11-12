@@ -54,6 +54,7 @@ La CI de GitHub genera el APK de depuración en cada push.
 - Menú ⋮ → **Practicar**: repasa todas las tarjetas del mazo, al azar, sin cambiar las cajas ni las estadísticas.
 - Menú ⋮ → **Exportar CSV**: guarda las tarjetas con texto en formato `pregunta;respuesta`.
 - Menú ⋮ → **Compartir mazo**: envía el mazo (con imágenes y audio) como fichero `.leitner` por WhatsApp, correo, etc. Quien lo reciba lo abre con ⋮ → **Importar mazo** en la lista de mazos; llega como mazo nuevo, con todas las tarjetas en la caja 1.
+- **Etiquetas**: al crear o editar una tarjeta puedes ponerle etiquetas (`verbos, tema 3`). En el mazo, toca una etiqueta para ver solo esas tarjetas; con una elegida, ⋮ → **Practicar** practica solo esas.
 
 ## Motivación
 

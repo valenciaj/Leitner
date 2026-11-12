@@ -48,6 +48,9 @@ data class CardEntity(
     val box: Int = 1,
     val nextReviewDay: Long,
     val createdAt: Long = System.currentTimeMillis(),
+    /** Etiquetas separadas por comas (ver es.leitner.core.Tags). */
+    @ColumnInfo(defaultValue = "")
+    val tags: String = "",
 )
 
 /** Configuración de cajas de cada modo. intervals = "1,2,4,8,16". */

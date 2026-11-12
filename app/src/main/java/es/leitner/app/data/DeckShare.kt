@@ -3,6 +3,7 @@ package es.leitner.app.data
 import androidx.room.withTransaction
 import es.leitner.core.LeitnerScheduler
 import es.leitner.core.Mode
+import es.leitner.core.Tags
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -109,6 +110,7 @@ class DeckShare(
                         audioPath = file(obj, "audio"),
                         backImagePath = file(obj, "backImage"),
                         backAudioPath = file(obj, "backAudio"),
+                        tags = Tags.normalize(obj.optString("tags", "")),
                     )
                 }
             } catch (e: JSONException) {
@@ -131,6 +133,7 @@ class DeckShare(
                             audioPath = it.audioPath,
                             backImageUri = it.backImagePath,
                             backAudioPath = it.backAudioPath,
+                            tags = it.tags,
                             box = progress.box,
                             nextReviewDay = progress.nextReviewDay,
                         )
@@ -160,5 +163,6 @@ class DeckShare(
             .put("audio", audioPath?.let { File(it).name } ?: JSONObject.NULL)
             .put("backImage", backImageUri?.let { File(it).name } ?: JSONObject.NULL)
             .put("backAudio", backAudioPath?.let { File(it).name } ?: JSONObject.NULL)
+            .put("tags", tags)
     }
 }
