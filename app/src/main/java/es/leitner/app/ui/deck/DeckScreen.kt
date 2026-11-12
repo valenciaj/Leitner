@@ -24,6 +24,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -46,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.leitner.app.data.CardEntity
 import es.leitner.app.data.MediaStorage
-import es.leitner.app.ui.common.CardContent
+import es.leitner.app.data.content
 import es.leitner.app.ui.common.CardEditDialog
 import es.leitner.app.ui.common.CardImage
 import es.leitner.app.ui.common.ConfirmDialog
@@ -77,6 +78,8 @@ fun DeckScreen(
 ) {
     val deck by viewModel.deck.collectAsStateWithLifecycle()
     val cards by viewModel.cards.collectAsStateWithLifecycle()
+    val visibleCards by viewModel.visibleCards.collectAsStateWithLifecycle()
+    val query by viewModel.query.collectAsStateWithLifecycle()
     val config by viewModel.config.collectAsStateWithLifecycle()
     var dialog by remember { mutableStateOf<DeckDialog?>(null) }
     var menuOpen by remember { mutableStateOf(false) }
@@ -93,6 +96,19 @@ fun DeckScreen(
                     }.getOrNull()
                 }
                 viewModel.importCsv(text)
+            }
+        }
+    }
+    val exportCsv = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
+        if (uri != null) {
+            val csv = viewModel.csv()
+            scope.launch {
+                val ok = withContext(Dispatchers.IO) {
+                    runCatching {
+                        context.contentResolver.openOutputStream(uri)?.use { it.write(csv.toByteArray(Charsets.UTF_8)) } != null
+                    }.getOrDefault(false)
+                }
+                viewModel.onExported(ok)
             }
         }
     }
@@ -121,6 +137,19 @@ fun DeckScreen(
                                         arrayOf("text/*", "application/csv", "application/vnd.ms-excel", "application/octet-stream"),
                                     )
                                 },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Exportar CSV") },
+                                enabled = cards.isNotEmpty(),
+                                onClick = {
+                                    menuOpen = false
+                                    exportCsv.launch("${deck?.name ?: "mazo"}.csv")
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Crear tarjetas al revés") },
+                                enabled = cards.isNotEmpty(),
+                                onClick = { menuOpen = false; viewModel.addReversedCards() },
                             )
                             DropdownMenuItem(
                                 text = { Text("Renombrar mazo") },
@@ -167,7 +196,24 @@ fun DeckScreen(
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
-                items(cards, key = { it.id }) { card ->
+                if (cards.size > 5 || query.isNotEmpty()) {
+                    item(key = "search") {
+                        OutlinedTextField(
+                            value = query,
+                            onValueChange = viewModel::setQuery,
+                            label = { Text("🔍 Buscar") },
+                            singleLine = true,
+                            trailingIcon = {
+                                if (query.isNotEmpty()) TextButton(onClick = { viewModel.setQuery("") }) { Text("✕") }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    if (visibleCards.isEmpty()) {
+                        item(key = "noresults") { Text("Ninguna tarjeta coincide", style = MaterialTheme.typography.bodyMedium) }
+                    }
+                }
+                items(visibleCards, key = { it.id }) { card ->
                     CardRow(card, kids, onClick = { dialog = DeckDialog.EditCard(card) })
                 }
             }
@@ -179,15 +225,16 @@ fun DeckScreen(
         DeckDialog.NewCard -> CardEditDialog(
             title = "Nueva tarjeta",
             media = media,
+            offerReverse = true,
             onDismiss = { dialog = null },
-            onSave = { viewModel.addCard(it); dialog = null },
+            onSave = { content, reversed -> viewModel.addCard(content, reversed); dialog = null },
         )
         is DeckDialog.EditCard -> CardEditDialog(
             title = "Editar tarjeta",
             media = media,
-            initial = CardContent(d.card.front, d.card.back, d.card.imageUri, d.card.audioPath),
+            initial = d.card.content(),
             onDismiss = { dialog = null },
-            onSave = { viewModel.updateCard(d.card.id, it); dialog = null },
+            onSave = { content, _ -> viewModel.updateCard(d.card.id, content); dialog = null },
             onDelete = { viewModel.deleteCard(d.card.id); dialog = null },
         )
         DeckDialog.Rename -> TextInputDialog(
@@ -227,11 +274,16 @@ private fun CardRow(card: CardEntity, kids: Boolean, onClick: () -> Unit) {
                 Spacer(Modifier.width(12.dp))
             }
             Column(Modifier.weight(1f)) {
-                val front = card.front.ifBlank { if (card.audioPath != null) "🔊" else "🖼" }
-                Text(if (card.audioPath != null && card.front.isNotBlank()) "$front 🔊" else front, style = MaterialTheme.typography.titleMedium)
-                Text(card.back, style = MaterialTheme.typography.bodyLarge)
+                Text(sideLabel(card.front, card.imageUri, card.audioPath), style = MaterialTheme.typography.titleMedium)
+                Text(sideLabel(card.back, card.backImageUri, card.backAudioPath), style = MaterialTheme.typography.bodyLarge)
             }
             AssistChip(onClick = onClick, label = { Text("Caja ${card.box}") })
         }
     }
+}
+
+/** Texto de un lado de la tarjeta, con iconos si tiene imagen o audio. */
+private fun sideLabel(text: String, image: String?, audio: String?): String {
+    val icons = listOfNotNull(image?.let { "🖼" }, audio?.let { "🔊" }).joinToString(" ")
+    return listOf(text, icons).filter { it.isNotBlank() }.joinToString(" ")
 }

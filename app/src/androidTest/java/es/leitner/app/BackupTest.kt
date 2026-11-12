@@ -34,9 +34,10 @@ class BackupTest {
         val backup = BackupManager(db, media)
         try {
             val image = File(media.directory, "test-image.jpg").apply { writeBytes(byteArrayOf(1, 2, 3)) }
+            val audio = File(media.directory, "test-audio.m4a").apply { writeBytes(byteArrayOf(4, 5)) }
             db.backupDao().insertDecks(listOf(DeckEntity(id = 7, name = "Animales", mode = Mode.KIDS, createdAt = 1)))
             db.backupDao().insertCards(
-                listOf(CardEntity(id = 3, deckId = 7, front = "", back = "perro", imageUri = image.absolutePath, box = 2, nextReviewDay = 50)),
+                listOf(CardEntity(id = 3, deckId = 7, front = "", back = "perro", imageUri = image.absolutePath, backAudioPath = audio.absolutePath, box = 2, nextReviewDay = 50)),
             )
             db.backupDao().insertSettings(listOf(BoxSettingsEntity(Mode.KIDS, "1,2")))
             db.backupDao().insertLogs(listOf(ReviewLogEntity(cardId = 3, deckId = 7, day = 49, correct = true)))
@@ -47,6 +48,7 @@ class BackupTest {
             // Borrar todo y restaurar.
             db.backupDao().clearLogs(); db.backupDao().clearCards(); db.backupDao().clearDecks()
             image.delete()
+            audio.delete()
 
             assertEquals(BackupManager.Summary(1, 1), backup.import(ByteArrayInputStream(out.toByteArray())))
 
@@ -54,12 +56,14 @@ class BackupTest {
             assertEquals("perro", card.back)
             assertEquals(2, card.box)
             assertTrue(File(card.imageUri!!).readBytes().contentEquals(byteArrayOf(1, 2, 3)))
+            assertTrue(File(card.backAudioPath!!).readBytes().contentEquals(byteArrayOf(4, 5)))
             assertEquals("Animales", db.backupDao().decks().single().name)
             assertEquals("1,2", db.backupDao().settings().single().intervals)
             assertEquals(1, db.backupDao().logs().size)
         } finally {
             db.close()
             File(media.directory, "test-image.jpg").delete()
+            File(media.directory, "test-audio.m4a").delete()
         }
     }
 

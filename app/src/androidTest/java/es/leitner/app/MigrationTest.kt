@@ -60,7 +60,7 @@ class MigrationTest {
         }
 
         val room = Room.databaseBuilder(context, LeitnerDatabase::class.java, name)
-            .addMigrations(LeitnerDatabase.MIGRATION_1_2, LeitnerDatabase.MIGRATION_2_3)
+            .addMigrations(LeitnerDatabase.MIGRATION_1_2, LeitnerDatabase.MIGRATION_2_3, LeitnerDatabase.MIGRATION_3_4)
             .build()
         try {
             runBlocking {
@@ -68,6 +68,8 @@ class MigrationTest {
                 assertEquals("perro", card.front)
                 assertEquals(3, card.box)
                 assertNull(card.audioPath)
+                assertNull(card.backImageUri)
+                assertNull(card.backAudioPath)
                 assertEquals("1,3,7", room.boxSettingsDao().get(Mode.NORMAL)!!.intervals)
 
                 // La tabla nueva funciona.

@@ -37,6 +37,10 @@ data class CardEntity(
     val imageUri: String? = null,
     /** Ruta local (en filesDir) de un audio opcional de la pregunta. */
     val audioPath: String? = null,
+    /** Imagen opcional de la respuesta. */
+    val backImageUri: String? = null,
+    /** Audio opcional de la respuesta. */
+    val backAudioPath: String? = null,
     val box: Int = 1,
     val nextReviewDay: Long,
     val createdAt: Long = System.currentTimeMillis(),

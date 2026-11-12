@@ -43,7 +43,7 @@ class BackupManager(
             zip.putNextEntry(ZipEntry(JSON_NAME))
             zip.write(json.toString().toByteArray())
             zip.closeEntry()
-            cards.flatMap { listOfNotNull(it.imageUri, it.audioPath) }
+            cards.flatMap { it.content().files }
                 .map(::File)
                 .filter { it.isFile }
                 .distinctBy { it.name }
@@ -141,6 +141,8 @@ class BackupManager(
             .put("id", id).put("deckId", deckId).put("front", front).put("back", back)
             .put("image", imageUri?.let { File(it).name } ?: JSONObject.NULL)
             .put("audio", audioPath?.let { File(it).name } ?: JSONObject.NULL)
+            .put("backImage", backImageUri?.let { File(it).name } ?: JSONObject.NULL)
+            .put("backAudio", backAudioPath?.let { File(it).name } ?: JSONObject.NULL)
             .put("box", box).put("nextReviewDay", nextReviewDay).put("createdAt", createdAt)
 
         fun JSONObject.toCard(mediaDir: File) = CardEntity(
@@ -150,6 +152,9 @@ class BackupManager(
             back = getString("back"),
             imageUri = optStringOrNull("image")?.let { File(mediaDir, File(it).name).absolutePath },
             audioPath = optStringOrNull("audio")?.let { File(mediaDir, File(it).name).absolutePath },
+            // Las copias antiguas no tienen estos campos.
+            backImageUri = optStringOrNull("backImage")?.let { File(mediaDir, File(it).name).absolutePath },
+            backAudioPath = optStringOrNull("backAudio")?.let { File(mediaDir, File(it).name).absolutePath },
             box = getInt("box"),
             nextReviewDay = getLong("nextReviewDay"),
             createdAt = getLong("createdAt"),
