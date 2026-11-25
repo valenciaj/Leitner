@@ -146,11 +146,13 @@ fun HomeScreen(
         },
         snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { showDialog = true },
-                icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                text = { Text(stringResource(R.string.new_deck)) },
-            )
+            // Sin la variante icon/text: esa anima el texto y, con animaciones
+            // desactivadas, lo deja fuera de la pantalla (y de TalkBack).
+            ExtendedFloatingActionButton(onClick = { showDialog = true }) {
+                Icon(Icons.Filled.Add, contentDescription = null)
+                Spacer(Modifier.width(12.dp))
+                Text(stringResource(R.string.new_deck))
+            }
         },
     ) { padding ->
         if (decks.isEmpty()) {
