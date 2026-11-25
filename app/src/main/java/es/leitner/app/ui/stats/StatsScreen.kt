@@ -1,5 +1,6 @@
 package es.leitner.app.ui.stats
 
+import es.leitner.app.ui.common.BackButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,7 +61,7 @@ fun StatsScreen(viewModel: StatsViewModel, onBack: () -> Unit, onPracticeHard: (
         topBar = {
             TopAppBar(
                 title = { Text(modeString(kids, R.string.my_achievements, R.string.stats)) },
-                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.back)) } },
+                navigationIcon = { BackButton(onBack) },
             )
         },
     ) { padding ->

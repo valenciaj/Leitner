@@ -294,4 +294,18 @@
     <string name="hard_cards_none">Aún no hay tarjetas difíciles. Salen aquí las que falles 2 veces o más.</string>
     <string name="hard_card_fails">❌ %1$d de %2$d</string>
     <string name="practice_hard">🎯 Practicar las difíciles</string>
+    <!-- Interfaz moderna (fase 1) -->
+    <string name="goal_today">Objetivo de hoy</string>
+    <string name="goal_done_title">¡Objetivo cumplido!</string>
+    <string name="goal_fraction">%1$d/%2$d</string>
+    <plurals name="goal_left">
+        <item quantity="one">Te queda %d tarjeta</item>
+        <item quantity="other">Te quedan %d tarjetas</item>
+    </plurals>
+    <string name="goal_percent">%1$d %% completado</string>
+    <string name="review_deck_cd">Repasar %1$s</string>
+    <string name="deck_up_to_date">Al día · %1$d tarjetas</string>
+    <string name="deck_done_kids">¡Todo hecho! ⭐</string>
+    <string name="boxes_cd">Tarjetas por caja: %1$s</string>
+    <string name="box_count_cd">caja %1$d, %2$d</string>
 </resources>

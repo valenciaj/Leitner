@@ -1,5 +1,10 @@
 package es.leitner.app.ui.deck
 
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.Icons
+import es.leitner.app.ui.common.ActionIcon
+import es.leitner.app.ui.common.MoreButton
+import es.leitner.app.ui.common.BackButton
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -139,13 +144,10 @@ fun DeckScreen(
         topBar = {
             TopAppBar(
                 title = { Text(deck?.name ?: "") },
-                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.back)) } },
+                navigationIcon = { BackButton(onBack) },
                 actions = {
                     Box {
-                        val moreLabel = stringResource(R.string.more_options)
-                        TextButton(onClick = { menuOpen = true }, modifier = Modifier.semantics { contentDescription = moreLabel }) {
-                            Text("⋮")
-                        }
+                        MoreButton { menuOpen = true }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             DropdownMenuItem(
                                 text = {
@@ -262,11 +264,7 @@ fun DeckScreen(
                             singleLine = true,
                             trailingIcon = {
                                 if (query.isNotEmpty()) {
-                                    val clearLabel = stringResource(R.string.clear_search)
-                                    TextButton(
-                                        onClick = { viewModel.setQuery("") },
-                                        modifier = Modifier.semantics { contentDescription = clearLabel },
-                                    ) { Text("✕") }
+                                    ActionIcon(Icons.Filled.Close, stringResource(R.string.clear_search), { viewModel.setQuery("") })
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),

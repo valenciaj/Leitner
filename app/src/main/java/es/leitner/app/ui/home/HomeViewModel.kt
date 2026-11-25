@@ -20,6 +20,11 @@ class HomeViewModel(
     val decks: StateFlow<List<DeckSummary>> = repository.observeDecks(mode)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    /** Número de cajas del modo, para la barra de cada mazo. */
+    val boxCount: StateFlow<Int> = repository.observeConfig(mode)
+        .map { it.boxCount }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 5)
+
     /** Tarjetas repasadas hoy (primeros intentos; la práctica no cuenta). */
     val reviewedToday: StateFlow<Int> = repository.observeActivity(mode, days = 1)
         .map { days -> days.sumOf { it.total } }
