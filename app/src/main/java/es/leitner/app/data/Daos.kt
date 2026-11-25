@@ -17,7 +17,19 @@ data class DeckSummary(
     val totalCards: Int,
     val dueCards: Int,
     val paused: Boolean = false,
-)
+    /** Caja de cada tarjeta, separadas por comas (GROUP_CONCAT); null si no hay tarjetas. */
+    val boxes: String? = null,
+) {
+    /** Número de tarjetas en cada caja, de la 1 a la [boxCount]. */
+    fun boxCounts(boxCount: Int): IntArray {
+        val counts = IntArray(boxCount.coerceAtLeast(1))
+        boxes?.split(',')?.forEach { b ->
+            val i = (b.trim().toIntOrNull() ?: return@forEach) - 1
+            counts[i.coerceIn(0, counts.size - 1)]++
+        }
+        return counts
+    }
+}
 
 @Dao
 interface DeckDao {
@@ -49,6 +61,7 @@ interface DeckDao {
         """
         SELECT d.id, d.name, d.paused,
                COUNT(c.id) AS totalCards,
+               GROUP_CONCAT(c.box) AS boxes,
                COALESCE(SUM(CASE WHEN d.paused = 0 AND c.nextReviewDay <= :today THEN 1 ELSE 0 END), 0) AS dueCards
         FROM decks d LEFT JOIN cards c ON c.deckId = d.id
         WHERE d.mode = :mode

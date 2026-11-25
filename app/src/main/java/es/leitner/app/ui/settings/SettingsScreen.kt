@@ -1,5 +1,6 @@
 package es.leitner.app.ui.settings
 
+import es.leitner.app.ui.common.BackButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,7 +49,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, prefs: AppPrefs, backup: Backup
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.box_settings_title)) },
-                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.back)) } },
+                navigationIcon = { BackButton(onBack) },
             )
         },
     ) { padding ->

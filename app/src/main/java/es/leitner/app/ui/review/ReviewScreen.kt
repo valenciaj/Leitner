@@ -1,5 +1,10 @@
 package es.leitner.app.ui.review
 
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconToggleButton
+import es.leitner.app.ui.theme.LeitnerIcons
+import es.leitner.app.ui.common.ActionIcon
+import es.leitner.app.ui.common.CloseButton
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -69,14 +74,13 @@ fun ReviewScreen(viewModel: ReviewViewModel, onClose: () -> Unit) {
                         else modeString(kids, R.string.review_title_kids, R.string.review_title),
                     )
                 },
-                navigationIcon = { TextButton(onClick = onClose) { Text(stringResource(R.string.exit)) } },
+                navigationIcon = { CloseButton(onClose) },
                 actions = {
                     val typeLabel = stringResource(if (state.typeAnswer) R.string.type_answer_off else R.string.type_answer_on)
-                    TextButton(
-                        onClick = viewModel::toggleTypeAnswer,
-                        modifier = Modifier.semantics { contentDescription = typeLabel },
-                    ) { Text(if (state.typeAnswer) "✍✓" else "✍") }
-                    if (state.canUndo) TextButton(onClick = viewModel::undo) { Text(stringResource(R.string.undo)) }
+                    IconToggleButton(checked = state.typeAnswer, onCheckedChange = { viewModel.toggleTypeAnswer() }) {
+                        Icon(LeitnerIcons.Keyboard, contentDescription = typeLabel)
+                    }
+                    if (state.canUndo) ActionIcon(LeitnerIcons.Undo, stringResource(R.string.undo), viewModel::undo)
                 },
             )
         },

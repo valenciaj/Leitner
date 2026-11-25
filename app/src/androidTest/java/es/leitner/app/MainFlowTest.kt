@@ -5,6 +5,8 @@ import es.leitner.core.Mode
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -40,9 +42,10 @@ class MainFlowTest {
         rule.onNodeWithText(s(R.string.save)).performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasText("perro")).fetchSemanticsNodes().isNotEmpty() }
 
-        rule.onNodeWithText(s(R.string.back)).performClick()
-        rule.waitUntil(5_000) { rule.onAllNodes(hasText(s(R.string.review))).fetchSemanticsNodes().isNotEmpty() }
-        rule.onNodeWithText(s(R.string.review)).performClick()
+        rule.onNodeWithContentDescription(s(R.string.back)).performClick()
+        val reviewDeck = s(R.string.review_deck_cd, deckName)
+        rule.waitUntil(5_000) { rule.onAllNodes(hasContentDescription(reviewDeck)).fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithContentDescription(reviewDeck).performClick()
 
         rule.waitUntil(5_000) { rule.onAllNodes(hasText(s(R.string.show_answer))).fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithText(s(R.string.show_answer)).performClick()
@@ -53,7 +56,7 @@ class MainFlowTest {
         rule.waitUntil(5_000) { rule.onAllNodes(hasText(s(R.string.retry))).fetchSemanticsNodes().isNotEmpty() }
 
         // Deshacer vuelve a la tarjeta con la respuesta a la vista.
-        rule.onNodeWithText(s(R.string.undo)).performClick()
+        rule.onNodeWithContentDescription(s(R.string.undo)).performClick()
         rule.waitUntil(5_000) { rule.onAllNodes(hasText(s(R.string.right))).fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithText(s(R.string.right)).performClick()
 

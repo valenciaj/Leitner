@@ -292,4 +292,18 @@
     <string name="hard_cards_none">No hard cards yet. Cards you miss 2 times or more show up here.</string>
     <string name="hard_card_fails">❌ %1$d of %2$d</string>
     <string name="practice_hard">🎯 Practice the hard ones</string>
+    <!-- Modern UI (phase 1) -->
+    <string name="goal_today">Today\'s goal</string>
+    <string name="goal_done_title">Goal reached!</string>
+    <string name="goal_fraction">%1$d/%2$d</string>
+    <plurals name="goal_left">
+        <item quantity="one">%d card left</item>
+        <item quantity="other">%d cards left</item>
+    </plurals>
+    <string name="goal_percent">%1$d%% done</string>
+    <string name="review_deck_cd">Review %1$s</string>
+    <string name="deck_up_to_date">Up to date · %1$d cards</string>
+    <string name="deck_done_kids">All done! ⭐</string>
+    <string name="boxes_cd">Cards per box: %1$s</string>
+    <string name="box_count_cd">box %1$d, %2$d</string>
 </resources>
