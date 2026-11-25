@@ -32,8 +32,9 @@ class MainFlowTest {
         try {
             rule.waitUntil(10_000) { rule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty() }
         } catch (e: Throwable) {
-            val tree = rule.onAllNodes(isRoot()).printToString()
-            throw AssertionError("No aparece '$text'. Pantalla:\n$tree", e)
+            // En una sola línea: Gradle solo muestra la primera del mensaje.
+            val tree = rule.onAllNodes(isRoot()).printToString().replace(Regex("\\s*\\n\\s*"), " | ")
+            throw AssertionError("No aparece '$text'. Pantalla: $tree", e)
         }
     }
 
