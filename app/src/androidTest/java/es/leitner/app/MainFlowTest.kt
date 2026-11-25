@@ -6,6 +6,8 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.isRoot
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -25,12 +27,24 @@ class MainFlowTest {
     /** Textos de la app en el idioma del emulador. */
     private fun s(id: Int, vararg args: Any): String = rule.activity.getString(id, *args)
 
+    /** Espera a que aparezca [text]; si no aparece, el error incluye el árbol de la pantalla. */
+    private fun waitForText(text: String) {
+        try {
+            rule.waitUntil(10_000) { rule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty() }
+        } catch (e: Throwable) {
+            val tree = rule.onAllNodes(isRoot()).printToString()
+            throw AssertionError("No aparece '$text'. Pantalla:\n$tree", e)
+        }
+    }
+
     @Test
     fun crear_mazo_tarjeta_y_repasar() {
         val deckName = "Mazo ${System.currentTimeMillis()}"
 
         rule.onNodeWithText(s(ModeNames.of(Mode.NORMAL))).performClick()
 
+        // La lista de mazos tarda un poco más en aparecer la primera vez (carga las fuentes).
+        waitForText(s(R.string.new_deck))
         rule.onNodeWithText(s(R.string.new_deck)).performClick()
         rule.onNode(hasSetTextAction() and hasText(s(R.string.name))).performTextInput(deckName)
         rule.onNodeWithText(s(R.string.create)).performClick()
